@@ -1,7 +1,7 @@
 ---
-title: 'Understanding LLM KV Cache Test'
+title: '理解 LLM KV Cache（测试）'
 
-description: 'A beginner-friendly explanation of KV Cache and LLM inference optimization.'
+description: '面向初学者介绍 KV Cache 及其在 LLM 推理优化中的作用。'
 
 date: '2026-08-11'
 
@@ -9,7 +9,7 @@ tags:
   - AI
   - LLM
 
-category: 'AI Systems'
+category: 'AI 系统'
 
 draft: true
 ---
@@ -30,7 +30,7 @@ Transformer 在生成文本的时候，会重复计算 Attention。
 
 KV Cache 可以降低推理成本，提高生成速度。
 
-## Python Test
+## Python 测试
 
 ```python
 def hello():
