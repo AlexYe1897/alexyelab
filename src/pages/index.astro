@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import BlogPreview from '../components/BlogPreview.astro';
+import ProjectPreview from '../components/ProjectPreview.astro';
+---
+
+<Layout description="Alex Ye 的个人技术网站，分享人工智能、大语言模型、软件工程与计算机系统相关的项目和文章。">
+  <Hero />
+  <main class="mx-auto max-w-5xl px-6 py-20">
+    <div class="grid gap-12 md:grid-cols-2">
+      <BlogPreview />
+
+      <ProjectPreview />
+    </div>
+  </main>
+</Layout>

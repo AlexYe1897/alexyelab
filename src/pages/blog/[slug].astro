@@ -1,0 +1,106 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import TableOfContents from '../../components/TableOfContents.astro';
+import { toTagSlug } from '../../utils/tags';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+
+  return posts.map((post) => ({
+    params: {
+      slug: post.id,
+    },
+
+    props: {
+      post,
+    },
+  }));
+}
+
+const { post } = Astro.props;
+
+const { Content, headings } = await render(post);
+
+const hasTableOfContents = headings.some(
+  (heading) => heading.depth === 2 || heading.depth === 3,
+);
+
+const wordCount = post.body.replace(/\s/g, '').length;
+
+const readingTime = Math.ceil(wordCount / 400);
+---
+
+<Layout title={post.data.title} description={post.data.description}>
+  <div class="mx-auto max-w-6xl px-6 py-12">
+    <a href="/blog" class="text-sm text-gray-500 hover:text-black transition">
+      ← Back to Blog
+    </a>
+
+    <article class="mt-8">
+      <header class="mb-8">
+        <h1 class="text-4xl font-bold tracking-tight">
+          {post.data.title}
+        </h1>
+
+        <div class="mt-6 flex gap-3 text-sm text-gray-400">
+          <span>
+            {post.data.category}
+          </span>
+
+          <span> · </span>
+
+          <span>
+            {post.data.date}
+          </span>
+
+          <span> · </span>
+
+          <span>
+            {wordCount} 字
+          </span>
+
+          <span> · </span>
+
+          <span>
+            {readingTime} min read
+          </span>
+        </div>
+
+        <div class="mt-4 flex gap-2">
+          {
+            post.data.tags.map((tag) => (
+              <a
+                href={`/tags/${encodeURIComponent(toTagSlug(tag))}`}
+                class="rounded-full bg-gray-100 px-3 py-1 text-sm"
+              >
+                {tag}
+              </a>
+            ))
+          }
+        </div>
+      </header>
+
+      <div
+        class:list={[
+          hasTableOfContents &&
+            'lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12',
+        ]}
+      >
+        <div class="prose prose-lg min-w-0 max-w-none">
+          <Content />
+        </div>
+
+        {
+          hasTableOfContents && (
+            <aside class="hidden lg:block">
+              <div class="sticky top-8">
+                <TableOfContents headings={headings} />
+              </div>
+            </aside>
+          )
+        }
+      </div>
+    </article>
+  </div>
+</Layout>

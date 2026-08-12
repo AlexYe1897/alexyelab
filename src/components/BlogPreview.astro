@@ -1,0 +1,43 @@
+---
+import BlogCard from './BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+
+const latestPosts = posts
+  .filter((post) => !post.data.draft)
+  .map((post) => ({
+    ...post,
+    words: (post.body ?? '').replace(/\s/g, '').length,
+  }))
+  .sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  )
+  .slice(0, 2);
+---
+
+<section>
+  <div class="flex items-center justify-between">
+    <h2 class="text-3xl font-bold">Latest Blog</h2>
+
+    <a href="/blog" class="text-sm text-gray-500 hover:text-black">
+      View all →
+    </a>
+  </div>
+
+  <div class="mt-6 grid gap-6">
+    {
+      latestPosts.map((post) => (
+        <BlogCard
+          title={post.data.title}
+          description={post.data.description}
+          date={post.data.date}
+          tags={post.data.tags}
+          category={post.data.category}
+          slug={post.id}
+          words={post.words}
+        />
+      ))
+    }
+  </div>
+</section>

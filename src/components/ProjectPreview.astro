@@ -1,0 +1,28 @@
+---
+import ProjectCard from './ProjectCard.astro';
+import { projects } from '../data/projects.js';
+
+const featuredProjects = projects.slice(0, 2);
+---
+
+<section>
+  <div class="flex items-center justify-between">
+    <h2 class="text-3xl font-bold">Featured Projects</h2>
+
+    <a href="/projects" class="text-sm text-gray-500 hover:text-black">
+      View all →
+    </a>
+  </div>
+
+  <div class="mt-6 grid gap-6">
+    {
+      featuredProjects.map((project) => (
+        <ProjectCard
+          title={project.title}
+          description={project.description}
+          tags={project.tags}
+        />
+      ))
+    }
+  </div>
+</section>

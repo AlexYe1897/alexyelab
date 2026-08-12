@@ -1,0 +1,28 @@
+---
+const { headings } = Astro.props;
+
+const tableOfContents = headings.filter(
+  (heading) => heading.depth === 2 || heading.depth === 3,
+);
+---
+
+{
+  tableOfContents.length > 0 && (
+    <nav aria-label="文章目录" class="rounded-lg border p-4">
+      <h2 class="mb-3 font-bold">目录</h2>
+
+      <ul class="space-y-2 text-sm">
+        {tableOfContents.map((heading) => (
+          <li class={heading.depth === 3 ? 'pl-4' : undefined}>
+            <a
+              href={`#${heading.slug}`}
+              class="block break-words text-gray-500 transition hover:text-black"
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

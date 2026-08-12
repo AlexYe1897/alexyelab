@@ -1,0 +1,133 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+
+const postsWithInfo = posts
+  .filter((post) => !post.data.draft)
+  .map((post) => {
+    const words = post.body.replace(/\s/g, '').length;
+    const searchText = [
+      post.data.title,
+      post.data.description,
+      post.data.category,
+      ...post.data.tags,
+    ]
+      .join(' ')
+      .toLocaleLowerCase();
+
+    return {
+      ...post,
+      words,
+      searchText,
+    };
+  })
+  .sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+  );
+---
+
+<Layout
+  title="Blog"
+  description="Alex Ye 关于人工智能、大语言模型、软件工程与计算机系统的技术文章和学习笔记。"
+>
+  <section class="mx-auto max-w-5xl px-6 py-24">
+    <div class="flex items-center justify-between">
+      <h1 class="text-5xl font-bold">Blog</h1>
+
+      <label class="sr-only" for="blog-search">搜索文章</label>
+      <input
+        id="blog-search"
+        type="search"
+        placeholder="Search posts..."
+        autocomplete="off"
+        class="w-48 rounded-lg border px-4 py-2"
+      />
+    </div>
+
+    <p id="search-status" class="mt-4 text-sm text-gray-500" aria-live="polite">
+      共 {postsWithInfo.length} 篇文章
+    </p>
+
+    <div id="blog-posts" class="mt-10 grid gap-6">
+      {
+        postsWithInfo.map((post) => (
+          <div data-blog-post data-search={post.searchText}>
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              tags={post.data.tags}
+              category={post.data.category}
+              slug={post.id}
+              words={post.words}
+            />
+          </div>
+        ))
+      }
+    </div>
+
+    <p id="search-empty" class="mt-10 hidden text-gray-500">
+      没有找到匹配的文章。
+    </p>
+  </section>
+</Layout>
+
+<script>
+  const searchInput = document.querySelector<HTMLInputElement>('#blog-search');
+  const searchStatus = document.querySelector<HTMLElement>('#search-status');
+  const emptyMessage = document.querySelector<HTMLElement>('#search-empty');
+  const postElements = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-blog-post]'),
+  );
+
+  const normalize = (value: string) => value.trim().toLocaleLowerCase();
+
+  const updateSearch = () => {
+    if (!searchInput || !searchStatus || !emptyMessage) return;
+
+    const query = normalize(searchInput.value);
+    const terms = query.split(/\s+/).filter(Boolean);
+    let visibleCount = 0;
+
+    for (const postElement of postElements) {
+      const searchText = postElement.dataset.search ?? '';
+      const isMatch = terms.every((term) => searchText.includes(term));
+
+      postElement.hidden = !isMatch;
+      if (isMatch) visibleCount += 1;
+    }
+
+    searchStatus.textContent = query
+      ? `找到 ${visibleCount} 篇相关文章`
+      : `共 ${postElements.length} 篇文章`;
+    emptyMessage.classList.toggle('hidden', visibleCount > 0);
+
+    const url = new URL(window.location.href);
+    if (query) {
+      url.searchParams.set('q', searchInput.value.trim());
+    } else {
+      url.searchParams.delete('q');
+    }
+    window.history.replaceState({}, '', url);
+  };
+
+  if (searchInput) {
+    const initialQuery = new URL(window.location.href).searchParams.get('q');
+    if (initialQuery) searchInput.value = initialQuery;
+
+    let scheduledFrame: number | undefined;
+    const scheduleSearch = () => {
+      if (scheduledFrame !== undefined) cancelAnimationFrame(scheduledFrame);
+      scheduledFrame = requestAnimationFrame(() => {
+        updateSearch();
+        scheduledFrame = undefined;
+      });
+    };
+
+    searchInput.addEventListener('input', scheduleSearch);
+    updateSearch();
+  }
+</script>

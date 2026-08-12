@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import BlogCard from '../../components/BlogCard.astro';
+import Layout from '../../layouts/Layout.astro';
+import { toTagSlug } from '../../utils/tags';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const postsByTag = new Map<string, { name: string; posts: typeof posts }>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      const slug = toTagSlug(tag);
+      const tagGroup = postsByTag.get(slug);
+
+      if (tagGroup) {
+        tagGroup.posts.push(post);
+      } else {
+        postsByTag.set(slug, { name: tag, posts: [post] });
+      }
+    }
+  }
+
+  return Array.from(postsByTag, ([slug, tagGroup]) => ({
+    params: { tag: slug },
+    props: tagGroup,
+  }));
+}
+
+const { name: tag, posts } = Astro.props;
+
+const postsWithInfo = posts
+  .map((post) => ({
+    ...post,
+    words: post.body.replace(/\s/g, '').length,
+  }))
+  .sort(
+    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+  );
+---
+
+<Layout
+  title={`与 ${tag} 相关的文章`}
+  description={`浏览 Alex Ye Lab 中与 ${tag} 相关的技术文章。`}
+>
+  <section class="mx-auto max-w-5xl px-6 py-24">
+    <a href="/blog" class="text-sm text-gray-500 transition hover:text-black">
+      ← 返回 Blog
+    </a>
+
+    <div class="mt-8">
+      <h1 class="text-4xl font-bold tracking-tight">
+        与 {tag} 相关的文章
+      </h1>
+
+      <p class="mt-3 text-gray-500">共 {postsWithInfo.length} 篇文章</p>
+    </div>
+
+    <div class="mt-10 grid gap-6">
+      {
+        postsWithInfo.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            tags={post.data.tags}
+            category={post.data.category}
+            slug={post.id}
+            words={post.words}
+          />
+        ))
+      }
+    </div>
+  </section>
+</Layout>
