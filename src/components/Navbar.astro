@@ -1,13 +1,196 @@
-<nav class="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
-  <div class="text-xl font-bold">Alex Ye Lab</div>
+---
+const links = [
+  { href: '/', label: '首页' },
+  { href: '/about', label: '关于' },
+  { href: '/blog', label: '博客' },
+  { href: '/projects', label: '项目' },
+];
 
-  <div class="flex gap-6 text-gray-600">
-    <a href="/" class="hover:text-black"> 首页 </a>
+const pathname = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+---
 
-    <a href="/about" class="hover:text-black"> 关于 </a>
+<nav data-site-nav aria-label="主导航" class="mx-auto max-w-5xl px-6 py-6">
+  <div class="flex items-center justify-between">
+    <a
+      href="/"
+      aria-label="Alex Ye Lab 首页"
+      class="text-xl font-bold transition hover:text-gray-600"
+    >
+      Alex Ye Lab
+    </a>
 
-    <a href="/blog" class="hover:text-black"> 博客 </a>
+    <div class="hidden items-center gap-6 text-gray-600 md:flex">
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            aria-current={isActive(link.href) ? 'location' : undefined}
+            class:list={[
+              'transition hover:text-black',
+              { 'font-semibold text-black': isActive(link.href) },
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
 
-    <a href="/projects" class="hover:text-black"> 项目 </a>
+    <button
+      data-menu-button
+      type="button"
+      aria-label="打开导航菜单"
+      aria-controls="mobile-navigation"
+      aria-expanded="false"
+      class="relative flex size-11 items-center justify-center rounded-md text-gray-700 transition hover:bg-gray-100 hover:text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black md:hidden"
+    >
+      <svg
+        data-menu-icon
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        class="nav-menu-icon size-6"
+      >
+        <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"></path>
+      </svg>
+
+      <svg
+        data-close-icon
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        class="nav-close-icon absolute size-6"
+      >
+        <path stroke-linecap="round" d="M6 6l12 12M18 6 6 18"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div
+    id="mobile-navigation"
+    data-mobile-menu
+    data-state="closed"
+    aria-hidden="true"
+    inert
+    class="mobile-menu md:hidden"
+  >
+    <div class="min-h-0 overflow-hidden">
+      <div class="mt-4 border-t border-gray-200 pt-3">
+        {
+          links.map((link) => (
+            <a
+              href={link.href}
+              aria-current={isActive(link.href) ? 'location' : undefined}
+              class:list={[
+                'block rounded-md px-3 py-3 text-base text-gray-600 transition hover:bg-gray-100 hover:text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black',
+                { 'bg-gray-100 font-semibold text-black': isActive(link.href) },
+              ]}
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </div>
+    </div>
   </div>
 </nav>
+
+<style>
+  .mobile-menu {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-0.25rem);
+    visibility: hidden;
+    transition:
+      grid-template-rows 180ms ease,
+      opacity 150ms ease,
+      transform 180ms ease,
+      visibility 0s linear 180ms;
+  }
+
+  .mobile-menu[data-state='open'] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .nav-menu-icon,
+  .nav-close-icon {
+    transition:
+      opacity 150ms ease,
+      transform 180ms ease;
+  }
+
+  .nav-close-icon {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.8);
+  }
+
+  [data-menu-button][aria-expanded='true'] .nav-menu-icon {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.8);
+  }
+
+  [data-menu-button][aria-expanded='true'] .nav-close-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  @media (min-width: 48rem) {
+    .mobile-menu {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu,
+    .nav-menu-icon,
+    .nav-close-icon {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-site-nav]').forEach((nav) => {
+    const button = nav.querySelector<HTMLButtonElement>('[data-menu-button]');
+    const menu = nav.querySelector<HTMLElement>('[data-mobile-menu]');
+    if (!button || !menu) return;
+
+    const setOpen = (open: boolean) => {
+      button.setAttribute('aria-expanded', String(open));
+      button.setAttribute('aria-label', open ? '关闭导航菜单' : '打开导航菜单');
+      menu.dataset.state = open ? 'open' : 'closed';
+      menu.setAttribute('aria-hidden', String(!open));
+      menu.toggleAttribute('inert', !open);
+    };
+
+    button.addEventListener('click', () => {
+      setOpen(button.getAttribute('aria-expanded') !== 'true');
+    });
+
+    menu.addEventListener('click', (event) => {
+      if ((event.target as Element).closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        button.focus();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.matchMedia('(min-width: 768px)').matches) setOpen(false);
+    });
+  });
+</script>

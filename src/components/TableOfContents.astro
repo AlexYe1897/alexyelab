@@ -1,5 +1,14 @@
 ---
-const { headings } = Astro.props;
+interface Props {
+  headings: Array<{
+    depth: number;
+    slug: string;
+    text: string;
+  }>;
+  label?: string;
+}
+
+const { headings, label = '文章目录' } = Astro.props;
 
 const tableOfContents = headings.filter(
   (heading) => heading.depth === 2 || heading.depth === 3,
@@ -8,7 +17,7 @@ const tableOfContents = headings.filter(
 
 {
   tableOfContents.length > 0 && (
-    <nav aria-label="文章目录" class="rounded-lg border p-4">
+    <nav aria-label={label} class="rounded-lg border p-4">
       <h2 class="mb-3 font-bold">目录</h2>
 
       <ul class="space-y-2 text-sm">

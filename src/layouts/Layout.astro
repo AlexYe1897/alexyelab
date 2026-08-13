@@ -48,9 +48,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   </head>
 
   <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+
     <Navbar />
 
-    <main class="min-h-screen">
+    <main id="main-content" tabindex="-1" class="min-h-screen">
       <slot />
     </main>
 
