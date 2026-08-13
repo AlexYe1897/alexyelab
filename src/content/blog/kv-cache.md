@@ -3,7 +3,7 @@ title: '理解 LLM KV Cache'
 
 description: '面向初学者介绍 KV Cache 及其在 LLM 推理优化中的作用。'
 
-date: '2026-08-11'
+pubDate: '2026-08-11'
 
 tags:
   - AI

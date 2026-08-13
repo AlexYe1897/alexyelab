@@ -2,13 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import BlogCard from '../../components/BlogCard.astro';
 import { getCollection } from 'astro:content';
+import { getReadingStats } from '../../utils/reading';
 
 const posts = await getCollection('blog');
 
 const postsWithInfo = posts
   .filter((post) => !post.data.draft)
   .map((post) => {
-    const words = post.body.replace(/\s/g, '').length;
+    const words = getReadingStats(post.body).wordCount;
     const searchText = [
       post.data.title,
       post.data.description,
@@ -25,7 +26,8 @@ const postsWithInfo = posts
     };
   })
   .sort(
-    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+    (a, b) =>
+      new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
   );
 ---
 
@@ -58,7 +60,7 @@ const postsWithInfo = posts
             <BlogCard
               title={post.data.title}
               description={post.data.description}
-              date={post.data.date}
+              date={post.data.pubDate}
               tags={post.data.tags}
               category={post.data.category}
               slug={post.id}

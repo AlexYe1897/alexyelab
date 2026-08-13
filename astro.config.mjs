@@ -1,16 +1,20 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://alexyelab.com',
+
+  integrations: [sitemap()],
+
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
   },
 
   markdown: {
-      syntaxHighlight: 'shiki'
-  }
-  
+    syntaxHighlight: 'shiki',
+  },
 });

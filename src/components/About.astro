@@ -1,15 +1,328 @@
+---
+const focusAreas = [
+  {
+    title: 'AI 多模态',
+    description: '关注文本、图像等不同模态信息的理解、融合与应用。',
+  },
+  {
+    title: 'LLM 与 AI Agent',
+    description:
+      '学习大语言模型基础、应用方式，以及 Agent 的工作流程与工程实现。',
+  },
+  {
+    title: '算法与工程实践',
+    description:
+      '继续积累算法基础，同时关注如何把想法实现成结构清晰、可以维护的项目。',
+  },
+];
+
+const currentWork = [
+  '学习大模型与多模态相关知识，整理核心概念和实践笔记。',
+  '持续搭建和完善 Alex Ye Lab，逐步补齐博客与项目展示能力。',
+  '通过小型项目记录从算法思路到工程实现、部署和维护的过程。',
+];
+
+const skills = [
+  'Python',
+  '算法基础',
+  'LLM',
+  'AI Agent',
+  '多模态',
+  'Astro',
+  'Tailwind CSS',
+  'Linux',
+  'Git',
+];
+
+const timeline = [
+  {
+    date: '2026-07',
+    title: '探索 LLM、AI Systems、多模态与算法',
+  },
+  {
+    date: '2026-08',
+    title: '创建 Alex Ye Lab',
+  },
+  {
+    date: '2026-09',
+    title: '开始研究生阶段学习',
+  },
+];
+
+const aboutNavigation = [
+  { id: 'focus', label: 'Focus' },
+  { id: 'now', label: 'Now' },
+  { id: 'site', label: 'Site' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'timeline', label: 'Timeline' },
+];
+---
+
 <section class="mx-auto max-w-5xl px-6 py-24">
-  <h1 class="text-4xl font-bold tracking-tight">关于我</h1>
-
-  <div class="mt-8 max-w-3xl space-y-6 text-lg text-gray-600">
-    <p>你好，我是 Alex，目前是一名计算机科学研究生。</p>
-
-    <p>
-      我的兴趣方向包括人工智能、大语言模型、软件工程和计算机系统。
+  <header id="intro" class="max-w-3xl" data-about-intro>
+    <p class="text-sm font-medium text-gray-500">About</p>
+    <h1 class="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+      你好，我是 Alex Ye。
+    </h1>
+    <p class="mt-6 text-lg leading-8 text-gray-600">
+      我是一名计算机科学方向学生，正在探索人工智能、算法与系统工程之间的结合。
+      目前主要关注AI 多模态、LLM、AI Agent、算法和工程实践。
     </p>
+  </header>
 
-    <p>
-      这个网站是我的个人实验室，用于记录项目、实验和技术笔记。
-    </p>
+  <div class="mt-20 space-y-20">
+    <section
+      id="focus"
+      aria-labelledby="focus-heading"
+      class="scroll-mt-12"
+      data-about-section
+    >
+      <div class="max-w-2xl">
+        <p class="text-sm font-medium text-gray-500">What I'm focused on</p>
+        <h2 id="focus-heading" class="mt-2 text-3xl font-bold">当前关注方向</h2>
+      </div>
+
+      <div class="mt-8 grid gap-6 md:grid-cols-3">
+        {
+          focusAreas.map((area) => (
+            <article class="rounded-xl border p-6">
+              <h3 class="text-xl font-semibold">{area.title}</h3>
+              <p class="mt-3 leading-7 text-gray-600">{area.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section
+      id="now"
+      aria-labelledby="building-heading"
+      class="grid scroll-mt-12 gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
+      data-about-section
+    >
+      <div>
+        <p class="text-sm font-medium text-gray-500">
+          What I'm building / learning
+        </p>
+        <h2 id="building-heading" class="mt-2 text-3xl font-bold">
+          正在学习与构建
+        </h2>
+        <p class="mt-4 leading-7 text-gray-600">
+          现阶段以学习、验证和持续记录为主，不急于给这些方向下结论。
+        </p>
+      </div>
+
+      <ul class="space-y-4">
+        {
+          currentWork.map((item, index) => (
+            <li class="flex gap-4 rounded-xl border p-5">
+              <span class="font-mono text-sm text-gray-400">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <p class="leading-7 text-gray-600">{item}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section
+      id="site"
+      aria-labelledby="site-heading"
+      class="scroll-mt-12 rounded-xl border p-7 sm:p-8"
+      data-about-section
+    >
+      <p class="text-sm font-medium text-gray-500">About this site</p>
+      <h2 id="site-heading" class="mt-2 text-3xl font-bold">关于这个网站</h2>
+      <div class="mt-5 max-w-3xl space-y-4 leading-7 text-gray-600">
+        <p>
+          Alex Ye Lab
+          是我的个人技术博客与学习记录网站，用来整理学习笔记、项目实践，以及在探索过程中遇到的问题和阶段性理解。
+        </p>
+        <p>
+          网站内容会随着学习进度持续更新。这里更看重真实的记录和可回顾的过程，而其他非商业用途或包装。
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="skills"
+      aria-labelledby="skills-heading"
+      class="scroll-mt-12"
+      data-about-section
+    >
+      <p class="text-sm font-medium text-gray-500">Skills / Tools</p>
+      <h2 id="skills-heading" class="mt-2 text-3xl font-bold">
+        常用技术与工具
+      </h2>
+      <p class="mt-4 max-w-2xl leading-7 text-gray-600">
+        目前以 Python
+        和算法基础为主，也在持续接触前端、部署、工程化和多模态相关技术。
+      </p>
+
+      <ul class="mt-6 flex flex-wrap gap-3">
+        {
+          skills.map((skill) => (
+            <li class="rounded-full bg-gray-100 px-4 py-2 text-sm">{skill}</li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section
+      id="contact"
+      aria-labelledby="contact-heading"
+      class="scroll-mt-12 border-t pt-12"
+      data-about-section
+    >
+      <p class="text-sm font-medium text-gray-500">Contact / Links</p>
+      <h2 id="contact-heading" class="mt-2 text-3xl font-bold">联系我</h2>
+      <p class="mt-4 max-w-2xl leading-7 text-gray-600">
+        如果你对网站中的内容感兴趣，或想交流学习和技术实践，可以通过下面的方式联系我。
+      </p>
+
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a
+          href="https://github.com/AlexYe1897"
+          target="_blank"
+          rel="noreferrer"
+          class="rounded-lg bg-black px-5 py-3 text-white transition hover:bg-gray-800"
+        >
+          GitHub
+        </a>
+        <a
+          href="mailto:yejixuan1897@163.com"
+          class="rounded-lg border px-5 py-3 transition hover:shadow-md"
+        >
+          Email
+        </a>
+      </div>
+    </section>
+
+    <section
+      id="timeline"
+      aria-labelledby="timeline-heading"
+      class="scroll-mt-12 border-t pt-12"
+      data-about-section
+    >
+      <p class="text-sm font-medium text-gray-500">Timeline</p>
+      <h2 id="timeline-heading" class="mt-2 text-3xl font-bold">时间线</h2>
+
+      <div class="mt-8 overflow-x-auto pb-3">
+        <ol
+          class="relative grid min-w-[42rem] grid-flow-col auto-cols-fr border-t border-gray-200"
+        >
+          {
+            timeline.map((item) => (
+              <li class="relative pr-8 pt-6 last:pr-0">
+                <span
+                  aria-hidden="true"
+                  class="absolute -top-1.5 left-0 h-3 w-3 rounded-full border-2 border-white bg-gray-400"
+                />
+                <time class="font-mono text-sm text-gray-500">{item.date}</time>
+                <p class="mt-2 max-w-52 leading-7 text-gray-600">
+                  {item.title}
+                </p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
   </div>
+
+  <nav
+    aria-label="关于页面快速导航"
+    class="about-quick-nav fixed top-1/2 z-10 hidden -translate-y-1/2 xl:block"
+    data-about-nav
+  >
+    <ul class="space-y-3 border-l border-gray-200 pl-4">
+      {
+        aboutNavigation.map((item) => (
+          <li>
+            <a
+              href={`#${item.id}`}
+              class="about-quick-link relative block text-xs tracking-wide text-gray-400 transition hover:text-black"
+              data-about-link={item.id}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 </section>
+
+<script>
+  const intro = document.querySelector<HTMLElement>('[data-about-intro]');
+  const navigation = document.querySelector<HTMLElement>('[data-about-nav]');
+  const sections = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-about-section]'),
+  );
+  const links = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('[data-about-link]'),
+  );
+
+  if (intro && navigation) {
+    const introObserver = new IntersectionObserver(([entry]) => {
+      navigation.classList.toggle('is-visible', !entry.isIntersecting);
+    });
+
+    introObserver.observe(intro);
+  }
+
+  if (sections.length > 0 && links.length > 0) {
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        const activeSection = entries.find((entry) => entry.isIntersecting);
+        if (!activeSection) return;
+
+        for (const link of links) {
+          const isCurrent = link.dataset.aboutLink === activeSection.target.id;
+          link.toggleAttribute('aria-current', isCurrent);
+        }
+      },
+      { rootMargin: '-20% 0px -65%' },
+    );
+
+    sections.forEach((section) => sectionObserver.observe(section));
+  }
+</script>
+
+<style>
+  .about-quick-nav {
+    left: max(1.5rem, calc(50% - 40rem));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+  }
+
+  .about-quick-nav.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .about-quick-link[aria-current] {
+    color: #111827;
+  }
+
+  .about-quick-link[aria-current]::before {
+    position: absolute;
+    top: 50%;
+    left: -1.1875rem;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: #111827;
+    content: '';
+    transform: translateY(-50%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about-quick-nav {
+      transition: none;
+    }
+  }
+</style>
