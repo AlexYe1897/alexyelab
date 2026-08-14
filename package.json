@@ -1,13 +1,16 @@
 {
-  "name": "",
+  "name": "alex-ye-lab",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Alex Ye 的个人技术博客与项目展示网站，基于 Astro 和 Tailwind CSS 构建。",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "check": "astro check",
+    "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -21,7 +24,9 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "prettier": "^3.9.6",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^6.0.3"
   }
 }

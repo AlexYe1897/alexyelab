@@ -52,7 +52,16 @@ const hasTableOfContents = headings.some(
 const { wordCount, readingTime } = getReadingStats(post.body);
 ---
 
-<Layout title={post.data.title} description={post.data.description}>
+<Layout
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  article={{
+    publishedTime: `${post.data.pubDate}T00:00:00.000Z`,
+    section: post.data.category,
+    tags: post.data.tags,
+  }}
+>
   <div class="mx-auto max-w-6xl px-6 py-12">
     <a href="/blog" class="text-sm text-gray-500 hover:text-black transition">
       ← 返回博客

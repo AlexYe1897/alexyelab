@@ -1,4 +1,5 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const blog = defineCollection({
@@ -12,7 +13,7 @@ const blog = defineCollection({
 
     description: z.string(),
 
-    pubDate: z.string().date(),
+    pubDate: z.iso.date(),
 
     tags: z.array(z.string()),
 
@@ -35,8 +36,8 @@ const projects = defineCollection({
     status: z.enum(['planned', 'in-progress', 'completed']),
     featured: z.boolean(),
     order: z.number(),
-    repository: z.string().url().optional(),
-    website: z.string().url().optional(),
+    repository: z.url().optional(),
+    website: z.url().optional(),
     draft: z.boolean(),
   }),
 });

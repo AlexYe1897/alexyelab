@@ -1,5 +1,5 @@
-export function getReadingStats(markdown: string) {
-  const readableText = markdown
+export function getReadingStats(markdown: string | undefined) {
+  const readableText = (markdown ?? '')
     .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, ' ')
     .replace(/^(?: {4}|\t).*$/gm, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ')
