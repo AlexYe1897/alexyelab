@@ -1,26 +1,126 @@
 ---
 import { getCollection } from 'astro:content';
 import ProjectCard from './ProjectCard.astro';
+import ExpandableSearch from './ExpandableSearch.astro';
 
-const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
-  (a, b) => a.data.order - b.data.order,
-);
+const statusTerms = {
+  planned: 'planned 计划中',
+  'in-progress': 'in-progress 进行中',
+  completed: 'completed 已完成',
+};
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft))
+  .map((project) => ({
+    ...project,
+    searchText: [
+      project.data.title,
+      project.data.description,
+      ...project.data.tags,
+      statusTerms[project.data.status],
+    ]
+      .join(' ')
+      .toLocaleLowerCase(),
+  }))
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 
 <section class="mx-auto max-w-5xl px-6 pt-12 pb-20 sm:pt-16">
-  <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">项目</h1>
+  <div class="flex items-center justify-between gap-6">
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">项目</h1>
 
-  <div class="mt-8 grid gap-6 md:grid-cols-3">
+    <ExpandableSearch
+      id="project-search"
+      label="项目搜索"
+      placeholder="搜索项目..."
+    />
+  </div>
+
+  <p
+    id="project-search-status"
+    class="mt-4 text-sm text-gray-500"
+    aria-live="polite"
+  >
+    共 {projects.length} 个项目
+  </p>
+
+  <div id="project-list" class="mt-10 grid gap-6 md:grid-cols-3">
     {
       projects.map((project) => (
-        <ProjectCard
-          slug={project.id}
-          title={project.data.title}
-          description={project.data.description}
-          tags={project.data.tags}
-          headingLevel="h2"
-        />
+        <div data-project data-search={project.searchText}>
+          <ProjectCard
+            slug={project.id}
+            title={project.data.title}
+            description={project.data.description}
+            tags={project.data.tags}
+            headingLevel="h2"
+          />
+        </div>
       ))
     }
   </div>
+
+  <p id="project-search-empty" class="mt-10 hidden text-gray-500">
+    没有找到匹配的项目。
+  </p>
 </section>
+
+<script>
+  const searchInput = document.querySelector<HTMLInputElement>('#project-search');
+  const searchStatus = document.querySelector<HTMLElement>(
+    '#project-search-status',
+  );
+  const emptyMessage = document.querySelector<HTMLElement>(
+    '#project-search-empty',
+  );
+  const projectElements = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-project]'),
+  );
+
+  const normalize = (value: string) => value.trim().toLocaleLowerCase();
+
+  const updateSearch = () => {
+    if (!searchInput || !searchStatus || !emptyMessage) return;
+
+    const query = normalize(searchInput.value);
+    const terms = query.split(/\s+/).filter(Boolean);
+    let visibleCount = 0;
+
+    for (const projectElement of projectElements) {
+      const searchText = projectElement.dataset.search ?? '';
+      const isMatch = terms.every((term) => searchText.includes(term));
+
+      projectElement.hidden = !isMatch;
+      if (isMatch) visibleCount += 1;
+    }
+
+    searchStatus.textContent = query
+      ? `找到 ${visibleCount} 个相关项目`
+      : `共 ${projectElements.length} 个项目`;
+    emptyMessage.classList.toggle('hidden', visibleCount > 0);
+
+    const url = new URL(window.location.href);
+    if (query) {
+      url.searchParams.set('q', searchInput.value.trim());
+    } else {
+      url.searchParams.delete('q');
+    }
+    window.history.replaceState({}, '', url);
+  };
+
+  if (searchInput) {
+    const initialQuery = new URL(window.location.href).searchParams.get('q');
+    if (initialQuery) searchInput.value = initialQuery;
+
+    let scheduledFrame: number | undefined;
+    const scheduleSearch = () => {
+      if (scheduledFrame !== undefined) cancelAnimationFrame(scheduledFrame);
+      scheduledFrame = requestAnimationFrame(() => {
+        updateSearch();
+        scheduledFrame = undefined;
+      });
+    };
+
+    searchInput.addEventListener('input', scheduleSearch);
+    updateSearch();
+  }
+</script>

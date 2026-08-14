@@ -10,24 +10,54 @@ interface Props {
 
 const { headings, label = '文章目录' } = Astro.props;
 
-const tableOfContents = headings.filter(
-  (heading) => heading.depth === 2 || heading.depth === 3,
-);
+let sectionIndex = 0;
+let subsectionIndex = 0;
+
+const tableOfContents = headings
+  .filter((heading) => heading.depth === 2 || heading.depth === 3)
+  .map((heading) => {
+    if (heading.depth === 2) {
+      sectionIndex += 1;
+      subsectionIndex = 0;
+
+      return {
+        ...heading,
+        number: String(sectionIndex).padStart(2, '0'),
+      };
+    }
+
+    subsectionIndex += 1;
+
+    return {
+      ...heading,
+      number:
+        sectionIndex > 0
+          ? `${String(sectionIndex).padStart(2, '0')}.${subsectionIndex}`
+          : String(subsectionIndex).padStart(2, '0'),
+    };
+  });
 ---
 
 {
   tableOfContents.length > 0 && (
-    <nav aria-label={label} class="rounded-lg border p-4">
+    <nav data-table-of-contents aria-label={label} class="rounded-lg border p-4">
       <h2 class="mb-3 font-bold">目录</h2>
 
       <ul class="space-y-2 text-sm">
         {tableOfContents.map((heading) => (
-          <li class={heading.depth === 3 ? 'pl-4' : undefined}>
+          <li class={heading.depth === 3 ? 'ml-4' : undefined}>
             <a
+              data-toc-link
               href={`#${heading.slug}`}
-              class="block break-words text-gray-500 transition hover:text-black"
+              class="toc-link relative grid grid-cols-[2rem_minmax(0,1fr)] items-start py-0.5 pl-2 text-gray-500 transition hover:text-black"
             >
-              {heading.text}
+              <span
+                aria-hidden="true"
+                class="toc-number font-mono text-xs leading-5 text-gray-400"
+              >
+                {heading.number}
+              </span>
+              <span class="break-words leading-5">{heading.text}</span>
             </a>
           </li>
         ))}
@@ -35,3 +65,116 @@ const tableOfContents = headings.filter(
     </nav>
   )
 }
+
+<style>
+  .toc-link::before {
+    position: absolute;
+    top: 0.125rem;
+    bottom: 0.125rem;
+    left: 0;
+    width: 2px;
+    border-radius: 9999px;
+    background: #111827;
+    content: '';
+    opacity: 0;
+    transform: scaleY(0.5);
+    transition:
+      opacity 150ms ease,
+      transform 180ms ease;
+  }
+
+  .toc-link[data-active] {
+    color: #111827;
+    font-weight: 600;
+  }
+
+  .toc-link[data-active]::before {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .toc-link[data-active] .toc-number {
+    color: #4b5563;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toc-link::before {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  document
+    .querySelectorAll<HTMLElement>('[data-table-of-contents]')
+    .forEach((tableOfContents) => {
+      const links = Array.from(
+        tableOfContents.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'),
+      );
+
+      const entries = links
+        .map((link) => {
+          const hash = link.getAttribute('href')?.slice(1);
+          if (!hash) return undefined;
+
+          let headingId = hash;
+          try {
+            headingId = decodeURIComponent(hash);
+          } catch {
+            // Keep the original hash if it is already decoded.
+          }
+
+          const heading = document.getElementById(headingId);
+          return heading ? { link, heading } : undefined;
+        })
+        .filter((entry) => entry !== undefined);
+
+      if (entries.length === 0) return;
+
+      const setActiveLink = (activeLink: HTMLAnchorElement) => {
+        for (const link of links) {
+          const isActive = link === activeLink;
+          link.toggleAttribute('data-active', isActive);
+
+          if (isActive) {
+            link.setAttribute('aria-current', 'location');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        }
+      };
+
+      const updateActiveLink = () => {
+        const readingLine = Math.min(window.innerHeight * 0.3, 160);
+        let activeEntry = entries[0];
+
+        for (const entry of entries) {
+          if (entry.heading.getBoundingClientRect().top <= readingLine) {
+            activeEntry = entry;
+          } else {
+            break;
+          }
+        }
+
+        setActiveLink(activeEntry.link);
+      };
+
+      let scheduledFrame: number | undefined;
+      const scheduleUpdate = () => {
+        if (scheduledFrame !== undefined) return;
+
+        scheduledFrame = window.requestAnimationFrame(() => {
+          updateActiveLink();
+          scheduledFrame = undefined;
+        });
+      };
+
+      for (const entry of entries) {
+        entry.link.addEventListener('click', () => setActiveLink(entry.link));
+      }
+
+      window.addEventListener('scroll', scheduleUpdate, { passive: true });
+      window.addEventListener('resize', scheduleUpdate);
+      scheduleUpdate();
+    });
+</script>

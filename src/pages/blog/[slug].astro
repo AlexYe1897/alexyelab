@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import TableOfContents from '../../components/TableOfContents.astro';
+import CodeBlockEnhancer from '../../components/CodeBlockEnhancer.astro';
 import { getReadingStats } from '../../utils/reading';
 import { toTagSlug } from '../../utils/tags';
 
@@ -111,6 +112,8 @@ const { wordCount, readingTime } = getReadingStats(post.body);
           <div class="prose prose-lg max-w-none">
             <Content />
           </div>
+
+          <CodeBlockEnhancer />
 
           {
             (previousPost || nextPost) && (

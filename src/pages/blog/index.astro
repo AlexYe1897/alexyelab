@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BlogCard from '../../components/BlogCard.astro';
+import ExpandableSearch from '../../components/ExpandableSearch.astro';
 import { getCollection } from 'astro:content';
 import { getReadingStats } from '../../utils/reading';
 
@@ -39,14 +40,38 @@ const postsWithInfo = posts
     <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">博客</h1>
 
-      <label class="sr-only" for="blog-search">搜索文章</label>
-      <input
-        id="blog-search"
-        type="search"
-        placeholder="搜索文章..."
-        autocomplete="off"
-        class="w-full rounded-lg border px-4 py-2 sm:w-48"
-      />
+      <div class="flex w-full items-center gap-3 sm:w-auto">
+        <a
+          href="/tags"
+          aria-label="浏览全部标签"
+          class="tag-index-link flex size-11 shrink-0 items-center overflow-hidden rounded-lg border text-gray-600 transition hover:text-black"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            class="ml-[0.625rem] size-6 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4.75 5.75v5.1c0 .53.21 1.04.59 1.41l6.4 6.4a2 2 0 0 0 2.83 0l4.09-4.09a2 2 0 0 0 0-2.83l-6.4-6.4a2 2 0 0 0-1.41-.59h-5.1a1 1 0 0 0-1 1Z"
+            ></path>
+            <circle cx="9" cy="9" r="1.25"></circle>
+          </svg>
+          <span class="tag-index-label ml-2 whitespace-nowrap text-sm font-medium">
+            浏览全部标签
+          </span>
+        </a>
+
+        <ExpandableSearch
+          id="blog-search"
+          label="文章搜索"
+          placeholder="搜索文章..."
+        />
+      </div>
     </div>
 
     <p id="search-status" class="mt-4 text-sm text-gray-500" aria-live="polite">
@@ -76,6 +101,49 @@ const postsWithInfo = posts
     </p>
   </section>
 </Layout>
+
+<style>
+  .tag-index-link {
+    width: 2.75rem;
+    transition:
+      width 180ms ease,
+      color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .tag-index-label {
+    max-width: 0;
+    opacity: 0;
+    transform: translateX(-0.25rem);
+    transition:
+      max-width 180ms ease,
+      opacity 140ms ease,
+      transform 180ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .tag-index-link:hover,
+    .tag-index-link:focus-visible {
+      width: 9.75rem;
+      background-color: #f9fafb;
+    }
+
+    .tag-index-link:hover .tag-index-label,
+    .tag-index-link:focus-visible .tag-index-label {
+      max-width: 7rem;
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tag-index-link,
+    .tag-index-label {
+      transition: none;
+    }
+  }
+</style>
 
 <script>
   const searchInput = document.querySelector<HTMLInputElement>('#blog-search');

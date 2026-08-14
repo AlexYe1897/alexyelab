@@ -1,0 +1,233 @@
+<style is:global>
+  .prose .enhanced-code-block {
+    margin-block: 1.75em;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 0.75rem;
+    background: #24292e;
+  }
+
+  .prose .enhanced-code-block > pre {
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .code-block-toolbar {
+    display: flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-inline: 0.875rem;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    background: #1f2428;
+    color: #9ca3af;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .code-block-language {
+    overflow: hidden;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      'Liberation Mono', 'Courier New', monospace;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .code-copy-button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0;
+    padding: 0.375rem;
+    border-radius: 0.25rem;
+    color: #d1d5db;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition:
+      color 150ms ease,
+      background-color 150ms ease,
+      gap 180ms ease;
+  }
+
+  .code-copy-button:hover {
+    background: rgb(255 255 255 / 8%);
+    color: #ffffff;
+  }
+
+  .code-copy-button[data-state='success'] {
+    color: #86efac;
+  }
+
+  .code-copy-button[data-state='error'] {
+    color: #fca5a5;
+  }
+
+  .code-copy-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .code-copy-label {
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(-0.25rem);
+    white-space: nowrap;
+    transition:
+      max-width 180ms ease,
+      opacity 140ms ease,
+      transform 180ms ease;
+  }
+
+  .code-copy-button[data-state='success'],
+  .code-copy-button[data-state='error'] {
+    gap: 0.375rem;
+  }
+
+  .code-copy-button[data-state='success'] .code-copy-label,
+  .code-copy-button[data-state='error'] .code-copy-label {
+    max-width: 5rem;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .code-copy-button:hover,
+    .code-copy-button:focus-visible {
+      gap: 0.375rem;
+    }
+
+    .code-copy-button:hover .code-copy-label,
+    .code-copy-button:focus-visible .code-copy-label {
+      max-width: 3rem;
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .code-copy-button,
+    .code-copy-label {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const languageNames: Record<string, string> = {
+    astro: 'Astro',
+    bash: 'Bash',
+    bat: 'CMD',
+    cmd: 'CMD',
+    console: 'Console',
+    css: 'CSS',
+    html: 'HTML',
+    javascript: 'JavaScript',
+    js: 'JavaScript',
+    json: 'JSON',
+    markdown: 'Markdown',
+    md: 'Markdown',
+    nginx: 'Nginx',
+    plaintext: '文本',
+    powershell: 'PowerShell',
+    ps1: 'PowerShell',
+    python: 'Python',
+    py: 'Python',
+    sh: 'Shell',
+    shell: 'Shell',
+    text: '文本',
+    ts: 'TypeScript',
+    typescript: 'TypeScript',
+    xml: 'XML',
+    yaml: 'YAML',
+    yml: 'YAML',
+    terminal: 'Terminal',
+    zsh: 'Zsh',
+  };
+
+  const copyText = async (text: string) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.append(textArea);
+    textArea.select();
+
+    const copied = document.execCommand('copy');
+    textArea.remove();
+
+    if (!copied) throw new Error('Copy failed');
+  };
+
+  document
+    .querySelectorAll<HTMLElement>('.prose pre[data-language]')
+    .forEach((codeBlock) => {
+      if (codeBlock.dataset.enhanced === 'true') return;
+
+      const code = codeBlock.querySelector('code');
+      if (!code) return;
+
+      codeBlock.dataset.enhanced = 'true';
+
+      const rawLanguage = codeBlock.dataset.language?.trim().toLowerCase() || 'text';
+      const languageName = languageNames[rawLanguage] || rawLanguage;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'enhanced-code-block';
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'code-block-toolbar';
+
+      const language = document.createElement('span');
+      language.className = 'code-block-language';
+      language.textContent = languageName;
+
+      const copyButton = document.createElement('button');
+      copyButton.type = 'button';
+      copyButton.className = 'code-copy-button';
+      copyButton.dataset.state = 'idle';
+      copyButton.setAttribute('aria-label', `复制 ${languageName} 代码`);
+      copyButton.innerHTML = `
+        <svg class="code-copy-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+          <path stroke-linecap="round" d="M16 8V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h1"></path>
+        </svg>
+        <span class="code-copy-label" aria-live="polite">复制</span>
+      `;
+
+      toolbar.append(language, copyButton);
+      codeBlock.before(wrapper);
+      wrapper.append(toolbar, codeBlock);
+
+      const copyLabel = copyButton.querySelector<HTMLElement>('.code-copy-label');
+      let resetTimer: number | undefined;
+
+      copyButton.addEventListener('click', async () => {
+        if (!copyLabel) return;
+
+        if (resetTimer !== undefined) window.clearTimeout(resetTimer);
+
+        try {
+          await copyText(code.textContent || '');
+          copyButton.dataset.state = 'success';
+          copyLabel.textContent = '已复制';
+        } catch {
+          copyButton.dataset.state = 'error';
+          copyLabel.textContent = '复制失败';
+        }
+
+        resetTimer = window.setTimeout(() => {
+          copyButton.dataset.state = 'idle';
+          copyLabel.textContent = '复制';
+          resetTimer = undefined;
+        }, 1800);
+      });
+    });
+</script>

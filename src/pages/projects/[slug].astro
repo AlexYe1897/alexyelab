@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import TableOfContents from '../../components/TableOfContents.astro';
+import CodeBlockEnhancer from '../../components/CodeBlockEnhancer.astro';
 import Layout from '../../layouts/Layout.astro';
 
 export async function getStaticPaths() {
@@ -106,6 +107,8 @@ const statusLabels = {
         <div class="prose prose-lg min-w-0 max-w-none">
           <Content />
         </div>
+
+        <CodeBlockEnhancer />
 
         {
           hasTableOfContents && (

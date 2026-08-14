@@ -7,8 +7,14 @@ const links = [
 ];
 
 const pathname = Astro.url.pathname;
-const isActive = (href: string) =>
-  href === '/' ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+const isActive = (href: string) => {
+  if (href === '/') return pathname === href;
+  if (href === '/blog' && (pathname === '/tags' || pathname.startsWith('/tags/'))) {
+    return true;
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+};
 ---
 
 <nav data-site-nav aria-label="主导航" class="mx-auto max-w-5xl px-6 py-6">
