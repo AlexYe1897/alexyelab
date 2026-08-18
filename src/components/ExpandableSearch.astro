@@ -13,7 +13,7 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
   data-expandable-search
   data-query-param={queryParam}
   data-state="closed"
-  class="search-control flex h-11 min-w-0 items-center overflow-hidden rounded-lg border bg-white text-gray-600"
+  class="search-control control-shell flex h-11 min-w-0 items-center overflow-hidden"
 >
   <button
     data-search-toggle
@@ -21,7 +21,7 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
     aria-label={`展开${label}`}
     aria-controls={id}
     aria-expanded="false"
-    class="relative flex size-11 shrink-0 items-center justify-center transition hover:text-black focus-visible:outline-none"
+    class="relative flex size-11 shrink-0 items-center justify-center transition hover:text-accent focus-visible:outline-none"
   >
     <svg
       data-search-icon
@@ -56,7 +56,7 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
       type="search"
       placeholder={placeholder}
       autocomplete="off"
-      class="search-input h-10 w-full min-w-0 bg-transparent pr-3 text-sm text-black placeholder:text-gray-400 focus-visible:outline-none"
+      class="search-input h-10 w-full min-w-0 bg-transparent pr-3 text-sm text-ink placeholder:text-ink-faint focus-visible:outline-none"
     />
   </div>
 </div>
@@ -65,6 +65,11 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
   .search-control {
     width: 2.75rem;
     flex: 0 0 2.75rem;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     transition:
       width 200ms ease,
       flex-basis 200ms ease,
@@ -74,11 +79,15 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
   .search-control[data-state='open'] {
     width: auto;
     flex: 1 1 0%;
+    background: color-mix(in srgb, var(--site-surface) 68%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(108%);
+    backdrop-filter: blur(10px) saturate(108%);
   }
 
   .search-control:focus-within {
-    outline: 2px solid #111827;
-    outline-offset: 3px;
+    border-color: transparent;
+    outline: 2px solid color-mix(in srgb, var(--site-focus) 70%, transparent);
+    outline-offset: 0;
   }
 
   .search-field {
@@ -129,7 +138,14 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
     .search-control:hover {
       width: 12rem;
       flex-basis: 12rem;
-      background-color: #f9fafb;
+      border-color: transparent;
+      background-color: color-mix(
+        in srgb,
+        var(--site-accent-soft) 70%,
+        transparent
+      );
+      -webkit-backdrop-filter: blur(10px) saturate(108%);
+      backdrop-filter: blur(10px) saturate(108%);
     }
 
     .search-control:hover .search-field {
@@ -154,7 +170,9 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
     .querySelectorAll<HTMLElement>('[data-expandable-search]')
     .forEach((control) => {
       const input = control.querySelector<HTMLInputElement>('.search-input');
-      const toggle = control.querySelector<HTMLButtonElement>('[data-search-toggle]');
+      const toggle = control.querySelector<HTMLButtonElement>(
+        '[data-search-toggle]',
+      );
 
       if (!input || !toggle) return;
 
@@ -164,10 +182,15 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
       const setOpen = (open: boolean) => {
         control.dataset.state = open ? 'open' : 'closed';
         toggle.setAttribute('aria-expanded', String(open));
-        toggle.setAttribute('aria-label', open ? `关闭${label}` : `展开${label}`);
+        toggle.setAttribute(
+          'aria-label',
+          open ? `关闭${label}` : `展开${label}`,
+        );
       };
 
-      const initialQuery = new URL(window.location.href).searchParams.get(queryParam);
+      const initialQuery = new URL(window.location.href).searchParams.get(
+        queryParam,
+      );
       if (initialQuery && !input.value) input.value = initialQuery;
       setOpen(Boolean(input.value));
 

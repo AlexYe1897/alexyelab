@@ -3,10 +3,7 @@ import { getCollection } from 'astro:content';
 import ProjectCard from './ProjectCard.astro';
 
 const featuredProjects = (
-  await getCollection(
-    'projects',
-    ({ data }) => !data.draft && data.featured,
-  )
+  await getCollection('projects', ({ data }) => !data.draft && data.featured)
 )
   .sort((a, b) => a.data.order - b.data.order)
   .slice(0, 2);
@@ -14,9 +11,9 @@ const featuredProjects = (
 
 <section>
   <div class="flex items-center justify-between">
-    <h2 class="text-3xl font-bold">精选项目</h2>
+    <h2 class="text-3xl weight-display">精选项目</h2>
 
-    <a href="/projects" class="text-sm text-gray-500 hover:text-black">
+    <a href="/projects" class="text-sm text-ink-muted hover:text-accent">
       查看全部 →
     </a>
   </div>

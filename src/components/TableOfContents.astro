@@ -40,8 +40,8 @@ const tableOfContents = headings
 
 {
   tableOfContents.length > 0 && (
-    <nav data-table-of-contents aria-label={label} class="rounded-lg border p-4">
-      <h2 class="mb-3 font-bold">目录</h2>
+    <nav data-table-of-contents aria-label={label} class="surface-card p-4">
+      <h2 class="mb-3 weight-heading">目录</h2>
 
       <ul class="space-y-2 text-sm">
         {tableOfContents.map((heading) => (
@@ -49,11 +49,11 @@ const tableOfContents = headings
             <a
               data-toc-link
               href={`#${heading.slug}`}
-              class="toc-link relative grid grid-cols-[2rem_minmax(0,1fr)] items-start py-0.5 pl-2 text-gray-500 transition hover:text-black"
+              class="toc-link relative grid grid-cols-[2rem_minmax(0,1fr)] items-start py-0.5 pl-2 text-ink-muted transition hover:text-accent"
             >
               <span
                 aria-hidden="true"
-                class="toc-number font-mono text-xs leading-5 text-gray-400"
+                class="toc-number font-mono text-xs leading-5 text-ink-faint"
               >
                 {heading.number}
               </span>
@@ -74,7 +74,7 @@ const tableOfContents = headings
     left: 0;
     width: 2px;
     border-radius: 9999px;
-    background: #111827;
+    background: var(--site-accent);
     content: '';
     opacity: 0;
     transform: scaleY(0.5);
@@ -84,7 +84,7 @@ const tableOfContents = headings
   }
 
   .toc-link[data-active] {
-    color: #111827;
+    color: var(--site-accent);
     font-weight: 600;
   }
 
@@ -94,7 +94,7 @@ const tableOfContents = headings
   }
 
   .toc-link[data-active] .toc-number {
-    color: #4b5563;
+    color: var(--site-accent);
   }
 
   @media (prefers-reduced-motion: reduce) {

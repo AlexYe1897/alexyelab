@@ -3,18 +3,19 @@ import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import TableOfContents from '../../components/TableOfContents.astro';
 import CodeBlockEnhancer from '../../components/CodeBlockEnhancer.astro';
+import DisplayTitleText from '../../components/DisplayTitleText.astro';
 import { getReadingStats } from '../../utils/reading';
 import { toTagSlug } from '../../utils/tags';
 
 export async function getStaticPaths() {
-  const posts = (
-    await getCollection('blog', ({ data }) => !data.draft)
-  ).sort((a, b) => {
-    const dateDifference =
-      new Date(a.data.pubDate).getTime() - new Date(b.data.pubDate).getTime();
+  const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+    (a, b) => {
+      const dateDifference =
+        new Date(a.data.pubDate).getTime() - new Date(b.data.pubDate).getTime();
 
-    return dateDifference || a.id.localeCompare(b.id);
-  });
+      return dateDifference || a.id.localeCompare(b.id);
+    },
+  );
 
   return posts.map((post, index) => ({
     params: {
@@ -62,63 +63,65 @@ const { wordCount, readingTime } = getReadingStats(post.body);
     tags: post.data.tags,
   }}
 >
-  <div class="mx-auto max-w-6xl px-6 py-12">
-    <a href="/blog" class="text-sm text-gray-500 hover:text-black transition">
+  <div class="mx-auto max-w-6xl px-6 pt-8 pb-12 sm:pt-10">
+    <a href="/blog" class="text-sm text-ink-muted transition hover:text-accent">
       ← 返回博客
     </a>
 
-    <article class="mt-8">
-      <header class="mb-8">
-        <h1 class="text-4xl font-bold tracking-tight">
-          {post.data.title}
-        </h1>
-
-        <div class="mt-6 flex gap-3 text-sm text-gray-400">
-          <span>
-            {post.data.category}
-          </span>
-
-          <span> · </span>
-
-          <span>
-            {post.data.pubDate}
-          </span>
-
-          <span> · </span>
-
-          <span>
-            {wordCount} 字
-          </span>
-
-          <span> · </span>
-
-          <span>
-            预计阅读 {readingTime} 分钟
-          </span>
-        </div>
-
-        <div class="mt-4 flex gap-2">
-          {
-            post.data.tags.map((tag) => (
-              <a
-                href={`/tags/${encodeURIComponent(toTagSlug(tag))}`}
-                class="rounded-full bg-gray-100 px-3 py-1 text-sm"
-              >
-                {tag}
-              </a>
-            ))
-          }
-        </div>
-      </header>
-
+    <article class="mt-6">
       <div
         class:list={[
           hasTableOfContents &&
             'lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12',
         ]}
       >
-        <div class="min-w-0">
-          <div class="prose prose-lg max-w-none">
+        <div class="article-paper min-w-0 p-6 sm:p-8">
+          <header class="mb-8">
+            <h1 class="text-4xl weight-display tracking-tight">
+              <DisplayTitleText text={post.data.title} />
+            </h1>
+
+            <div
+              class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-ink-faint"
+            >
+              <span class="whitespace-nowrap">
+                {post.data.category}
+              </span>
+
+              <span aria-hidden="true" class="hidden sm:inline"> · </span>
+
+              <span class="whitespace-nowrap">
+                {post.data.pubDate}
+              </span>
+
+              <span aria-hidden="true" class="hidden sm:inline"> · </span>
+
+              <span class="whitespace-nowrap">
+                {wordCount} 字
+              </span>
+
+              <span aria-hidden="true" class="hidden sm:inline"> · </span>
+
+              <span class="whitespace-nowrap">
+                预计阅读 {readingTime} 分钟
+              </span>
+            </div>
+
+            <div class="mt-4 flex gap-2">
+              {
+                post.data.tags.map((tag) => (
+                  <a
+                    href={`/tags/${encodeURIComponent(toTagSlug(tag))}`}
+                    class="tag-chip"
+                  >
+                    {tag}
+                  </a>
+                ))
+              }
+            </div>
+          </header>
+
+          <div class="article-prose prose prose-lg max-w-none">
             <Content />
           </div>
 
@@ -128,14 +131,14 @@ const { wordCount, readingTime } = getReadingStats(post.body);
             (previousPost || nextPost) && (
               <nav
                 aria-label="文章导航"
-                class="mt-12 grid gap-4 border-t pt-8 sm:grid-cols-2"
+                class="mt-16 grid gap-4 sm:grid-cols-2"
               >
                 {previousPost && (
                   <a
                     href={`/blog/${previousPost.id}`}
-                    class="rounded-xl border p-5 transition hover:shadow-lg"
+                    class="interactive-card p-5"
                   >
-                    <span class="text-sm text-gray-500">← 上一篇</span>
+                    <span class="text-sm text-ink-muted">← 上一篇</span>
                     <span class="mt-2 block font-semibold">
                       {previousPost.title}
                     </span>
@@ -146,11 +149,11 @@ const { wordCount, readingTime } = getReadingStats(post.body);
                   <a
                     href={`/blog/${nextPost.id}`}
                     class:list={[
-                      'rounded-xl border p-5 text-right transition hover:shadow-lg',
+                      'interactive-card p-5 text-right',
                       !previousPost && 'sm:col-start-2',
                     ]}
                   >
-                    <span class="text-sm text-gray-500">下一篇 →</span>
+                    <span class="text-sm text-ink-muted">下一篇 →</span>
                     <span class="mt-2 block font-semibold">
                       {nextPost.title}
                     </span>

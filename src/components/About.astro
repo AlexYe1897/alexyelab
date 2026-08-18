@@ -59,13 +59,18 @@ const aboutNavigation = [
 ];
 ---
 
-<section class="mx-auto max-w-5xl px-6 pt-12 pb-24 sm:pt-16">
-  <header id="intro" class="max-w-3xl" data-about-intro>
-    <p class="text-sm font-medium text-gray-500">About</p>
-    <h1 class="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-      你好，我是 Alex Ye。
+<section class="mx-auto max-w-5xl px-6 pt-10 pb-24 sm:pt-12">
+  <header
+    id="intro"
+    class="about-tone-section max-w-3xl"
+    data-about-intro
+    data-about-tone="intro"
+  >
+    <p class="about-tone-label text-sm font-medium">About</p>
+    <h1 class="mt-3 text-4xl weight-display tracking-tight sm:text-5xl">
+      你好，我是 <span class="weight-display-latin">Alex Ye</span>。
     </h1>
-    <p class="mt-6 text-lg leading-8 text-gray-600">
+    <p class="mt-6 text-lg leading-8 text-ink-muted">
       我是一名计算机科学方向学生，正在探索人工智能、算法与系统工程之间的结合。
       目前主要关注AI 多模态、LLM、AI Agent、算法和工程实践。
     </p>
@@ -75,20 +80,23 @@ const aboutNavigation = [
     <section
       id="focus"
       aria-labelledby="focus-heading"
-      class="scroll-mt-12"
+      class="about-tone-section scroll-mt-12"
       data-about-section
+      data-about-tone="focus"
     >
       <div class="max-w-2xl">
-        <p class="text-sm font-medium text-gray-500">What I'm focused on</p>
-        <h2 id="focus-heading" class="mt-2 text-3xl font-bold">当前关注方向</h2>
+        <p class="about-tone-label text-sm font-medium">What I'm focused on</p>
+        <h2 id="focus-heading" class="mt-2 text-3xl weight-heading">
+          当前关注方向
+        </h2>
       </div>
 
       <div class="mt-8 grid gap-6 md:grid-cols-3">
         {
           focusAreas.map((area) => (
-            <article class="rounded-xl border p-6">
-              <h3 class="text-xl font-semibold">{area.title}</h3>
-              <p class="mt-3 leading-7 text-gray-600">{area.description}</p>
+            <article class="surface-card p-6">
+              <h3 class="text-xl weight-subheading">{area.title}</h3>
+              <p class="mt-3 leading-7 text-ink-muted">{area.description}</p>
             </article>
           ))
         }
@@ -98,17 +106,18 @@ const aboutNavigation = [
     <section
       id="now"
       aria-labelledby="building-heading"
-      class="grid scroll-mt-12 gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
+      class="about-tone-section grid scroll-mt-12 gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
       data-about-section
+      data-about-tone="now"
     >
       <div>
-        <p class="text-sm font-medium text-gray-500">
+        <p class="about-tone-label text-sm font-medium">
           What I'm building / learning
         </p>
-        <h2 id="building-heading" class="mt-2 text-3xl font-bold">
+        <h2 id="building-heading" class="mt-2 text-3xl weight-heading">
           正在学习与构建
         </h2>
-        <p class="mt-4 leading-7 text-gray-600">
+        <p class="mt-4 leading-7 text-ink-muted">
           现阶段以学习、验证和持续记录为主，不急于给这些方向下结论。
         </p>
       </div>
@@ -116,11 +125,11 @@ const aboutNavigation = [
       <ul class="space-y-4">
         {
           currentWork.map((item, index) => (
-            <li class="flex gap-4 rounded-xl border p-5">
-              <span class="font-mono text-sm text-gray-400">
+            <li class="surface-card flex gap-4 p-5">
+              <span class="font-mono text-sm text-ink-faint">
                 {String(index + 1).padStart(2, '0')}
               </span>
-              <p class="leading-7 text-gray-600">{item}</p>
+              <p class="leading-7 text-ink-muted">{item}</p>
             </li>
           ))
         }
@@ -130,12 +139,15 @@ const aboutNavigation = [
     <section
       id="site"
       aria-labelledby="site-heading"
-      class="scroll-mt-12 rounded-xl border p-7 sm:p-8"
+      class="about-tone-section scroll-mt-12"
       data-about-section
+      data-about-tone="site"
     >
-      <p class="text-sm font-medium text-gray-500">About this site</p>
-      <h2 id="site-heading" class="mt-2 text-3xl font-bold">关于这个网站</h2>
-      <div class="mt-5 max-w-3xl space-y-4 leading-7 text-gray-600">
+      <p class="about-tone-label text-sm font-medium">About this site</p>
+      <h2 id="site-heading" class="mt-2 text-3xl weight-heading">
+        关于这个网站
+      </h2>
+      <div class="mt-5 max-w-3xl space-y-4 leading-7 text-ink-muted">
         <p>
           Alex Ye Lab
           是我的个人技术博客与学习记录网站，用来整理学习笔记、项目实践，以及在探索过程中遇到的问题和阶段性理解。
@@ -149,36 +161,34 @@ const aboutNavigation = [
     <section
       id="skills"
       aria-labelledby="skills-heading"
-      class="scroll-mt-12"
+      class="about-tone-section scroll-mt-12"
       data-about-section
+      data-about-tone="skills"
     >
-      <p class="text-sm font-medium text-gray-500">Skills / Tools</p>
-      <h2 id="skills-heading" class="mt-2 text-3xl font-bold">
+      <p class="about-tone-label text-sm font-medium">Skills / Tools</p>
+      <h2 id="skills-heading" class="mt-2 text-3xl weight-heading">
         常用技术与工具
       </h2>
-      <p class="mt-4 max-w-2xl leading-7 text-gray-600">
+      <p class="mt-4 max-w-2xl leading-7 text-ink-muted">
         目前以 Python
         和算法基础为主，也在持续接触前端、部署、工程化和多模态相关技术。
       </p>
 
       <ul class="mt-6 flex flex-wrap gap-3">
-        {
-          skills.map((skill) => (
-            <li class="rounded-full bg-gray-100 px-4 py-2 text-sm">{skill}</li>
-          ))
-        }
+        {skills.map((skill) => <li class="tag-chip">{skill}</li>)}
       </ul>
     </section>
 
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      class="scroll-mt-12 border-t pt-12"
+      class="about-tone-section scroll-mt-12"
       data-about-section
+      data-about-tone="contact"
     >
-      <p class="text-sm font-medium text-gray-500">Contact / Links</p>
-      <h2 id="contact-heading" class="mt-2 text-3xl font-bold">联系我</h2>
-      <p class="mt-4 max-w-2xl leading-7 text-gray-600">
+      <p class="about-tone-label text-sm font-medium">Contact / Links</p>
+      <h2 id="contact-heading" class="mt-2 text-3xl weight-heading">联系我</h2>
+      <p class="mt-4 max-w-2xl leading-7 text-ink-muted">
         如果你对网站中的内容感兴趣，或想交流学习和技术实践，可以通过下面的方式联系我。
       </p>
 
@@ -187,14 +197,11 @@ const aboutNavigation = [
           href="https://github.com/AlexYe1897"
           target="_blank"
           rel="noreferrer"
-          class="rounded-lg bg-black px-5 py-3 text-white transition hover:bg-gray-800"
+          class="button-primary"
         >
           GitHub
         </a>
-        <a
-          href="mailto:yejixuan1897@163.com"
-          class="rounded-lg border px-5 py-3 transition hover:shadow-md"
-        >
+        <a href="mailto:yejixuan1897@163.com" class="button-secondary">
           Email
         </a>
       </div>
@@ -203,25 +210,28 @@ const aboutNavigation = [
     <section
       id="timeline"
       aria-labelledby="timeline-heading"
-      class="scroll-mt-12 border-t pt-12"
+      class="about-tone-section scroll-mt-12"
       data-about-section
+      data-about-tone="timeline"
     >
-      <p class="text-sm font-medium text-gray-500">Timeline</p>
-      <h2 id="timeline-heading" class="mt-2 text-3xl font-bold">时间线</h2>
+      <p class="about-tone-label text-sm font-medium">Timeline</p>
+      <h2 id="timeline-heading" class="mt-2 text-3xl weight-heading">时间线</h2>
 
       <div class="mt-8 overflow-x-auto pb-3">
         <ol
-          class="relative grid min-w-[42rem] grid-flow-col auto-cols-fr border-t border-gray-200"
+          class="relative grid min-w-[42rem] grid-flow-col auto-cols-fr border-t border-line"
         >
           {
             timeline.map((item) => (
               <li class="relative pr-8 pt-6 last:pr-0">
                 <span
                   aria-hidden="true"
-                  class="absolute -top-1.5 left-0 h-3 w-3 rounded-full border-2 border-white bg-gray-400"
+                  class="about-timeline-dot absolute -top-1.5 left-0 h-3 w-3 rounded-full border-2"
                 />
-                <time class="font-mono text-sm text-gray-500">{item.date}</time>
-                <p class="mt-2 max-w-52 leading-7 text-gray-600">
+                <time class="font-mono text-sm text-ink-muted">
+                  {item.date}
+                </time>
+                <p class="mt-2 max-w-52 leading-7 text-ink-muted">
                   {item.title}
                 </p>
               </li>
@@ -237,13 +247,13 @@ const aboutNavigation = [
     class="about-quick-nav fixed top-1/2 z-10 hidden -translate-y-1/2 xl:block"
     data-about-nav
   >
-    <ul class="space-y-3 border-l border-gray-200 pl-4">
+    <ul class="space-y-3 border-l border-line pl-4">
       {
         aboutNavigation.map((item) => (
           <li>
             <a
               href={`#${item.id}`}
-              class="about-quick-link relative block text-xs tracking-wide text-gray-400 transition hover:text-black"
+              class="about-quick-link relative block text-xs tracking-wide text-ink-faint transition"
               data-about-link={item.id}
             >
               {item.label}
@@ -261,6 +271,7 @@ const aboutNavigation = [
   const sections = Array.from(
     document.querySelectorAll<HTMLElement>('[data-about-section]'),
   );
+  const toneSections = intro ? [intro, ...sections] : sections;
   const links = Array.from(
     document.querySelectorAll<HTMLAnchorElement>('[data-about-link]'),
   );
@@ -273,25 +284,105 @@ const aboutNavigation = [
     introObserver.observe(intro);
   }
 
+  const setNavigationSection = (section: HTMLElement) => {
+    for (const link of links) {
+      const isCurrent = link.dataset.aboutLink === section.id;
+      if (isCurrent) {
+        link.setAttribute('aria-current', 'location');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    }
+  };
+
   if (sections.length > 0 && links.length > 0) {
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         const activeSection = entries.find((entry) => entry.isIntersecting);
-        if (!activeSection) return;
-
-        for (const link of links) {
-          const isCurrent = link.dataset.aboutLink === activeSection.target.id;
-          if (isCurrent) {
-            link.setAttribute('aria-current', 'location');
-          } else {
-            link.removeAttribute('aria-current');
-          }
+        if (activeSection?.target instanceof HTMLElement) {
+          setNavigationSection(activeSection.target);
         }
       },
       { rootMargin: '-20% 0px -65%' },
     );
 
     sections.forEach((section) => sectionObserver.observe(section));
+  }
+
+  const setBackgroundTone = (section: HTMLElement) => {
+    const tone = section.dataset.aboutTone ?? 'intro';
+    document.body.dataset.aboutTone = tone;
+  };
+
+  if (intro) {
+    setBackgroundTone(intro);
+  }
+
+  if (toneSections.length > 0) {
+    let updateFrame: number | undefined;
+
+    const updateActiveTone = () => {
+      updateFrame = undefined;
+
+      const activationLine = window.innerHeight * 0.3;
+      let activeSection = toneSections[0];
+      const firstContentSection = sections[0];
+
+      if (
+        firstContentSection &&
+        firstContentSection.getBoundingClientRect().top <= activationLine
+      ) {
+        activeSection = sections.reduce((closestSection, section) => {
+          const closestRect = closestSection.getBoundingClientRect();
+          const sectionRect = section.getBoundingClientRect();
+          const closestDistance = Math.abs(
+            closestRect.top + closestRect.height / 2 - activationLine,
+          );
+          const sectionDistance = Math.abs(
+            sectionRect.top + sectionRect.height / 2 - activationLine,
+          );
+
+          return sectionDistance < closestDistance ? section : closestSection;
+        }, firstContentSection);
+      }
+
+      const contactSection = sections.find(
+        (section) => section.id === 'contact',
+      );
+      const timelineSection = sections.find(
+        (section) => section.id === 'timeline',
+      );
+      const maxScroll =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const remainingScroll = Math.max(0, maxScroll - window.scrollY);
+      const contactRange = Math.min(
+        520,
+        Math.max(320, window.innerHeight * 0.45),
+      );
+      const timelineRange = Math.min(
+        160,
+        Math.max(96, window.innerHeight * 0.12),
+      );
+
+      if (contactSection && remainingScroll <= contactRange) {
+        activeSection = contactSection;
+      }
+
+      if (timelineSection && remainingScroll <= timelineRange) {
+        activeSection = timelineSection;
+      }
+
+      setBackgroundTone(activeSection);
+    };
+
+    const scheduleToneUpdate = () => {
+      if (updateFrame !== undefined) return;
+      updateFrame = window.requestAnimationFrame(updateActiveTone);
+    };
+
+    window.addEventListener('scroll', scheduleToneUpdate, { passive: true });
+    window.addEventListener('resize', scheduleToneUpdate);
+    scheduleToneUpdate();
   }
 </script>
 
@@ -309,7 +400,11 @@ const aboutNavigation = [
   }
 
   .about-quick-link[aria-current] {
-    color: #111827;
+    color: var(--site-accent);
+  }
+
+  .about-quick-link:hover {
+    color: var(--site-accent);
   }
 
   .about-quick-link[aria-current]::before {
@@ -319,9 +414,14 @@ const aboutNavigation = [
     width: 0.375rem;
     height: 0.375rem;
     border-radius: 9999px;
-    background: #111827;
+    background: var(--site-accent);
     content: '';
     transform: translateY(-50%);
+  }
+
+  .about-timeline-dot {
+    border-color: var(--about-tone-background);
+    background: var(--about-tone-accent);
   }
 
   @media (prefers-reduced-motion: reduce) {

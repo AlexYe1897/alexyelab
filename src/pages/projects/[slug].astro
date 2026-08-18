@@ -2,13 +2,11 @@
 import { getCollection, render } from 'astro:content';
 import TableOfContents from '../../components/TableOfContents.astro';
 import CodeBlockEnhancer from '../../components/CodeBlockEnhancer.astro';
+import DisplayTitleText from '../../components/DisplayTitleText.astro';
 import Layout from '../../layouts/Layout.astro';
 
 export async function getStaticPaths() {
-  const projects = await getCollection(
-    'projects',
-    ({ data }) => !data.draft,
-  );
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
 
   return projects.map((project) => ({
     params: {
@@ -40,49 +38,43 @@ const statusLabels = {
   schemaType="CreativeWork"
   schemaKeywords={project.data.tags}
 >
-  <div class="mx-auto max-w-6xl px-6 py-12">
+  <div class="mx-auto max-w-6xl px-6 pt-8 pb-12 sm:pt-10">
     <a
       href="/projects"
-      class="text-sm text-gray-500 transition hover:text-black"
+      class="text-sm text-ink-muted transition hover:text-accent"
     >
       ← 返回项目
     </a>
 
-    <article class="mt-8">
+    <article class="mt-6">
       <header class="mb-8">
         <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-4xl font-bold tracking-tight">
-            {project.data.title}
+          <h1 class="text-4xl weight-display tracking-tight">
+            <DisplayTitleText text={project.data.title} />
           </h1>
 
-          <span class="rounded-full bg-gray-100 px-3 py-1 text-sm">
+          <span class="status-chip">
             {statusLabels[project.data.status]}
           </span>
         </div>
 
-        <p class="mt-6 max-w-3xl text-lg text-gray-600">
+        <p class="mt-5 max-w-3xl text-lg text-ink-muted">
           {project.data.description}
         </p>
 
         <div class="mt-4 flex flex-wrap gap-2">
-          {
-            project.data.tags.map((tag) => (
-              <span class="rounded-full bg-gray-100 px-3 py-1 text-sm">
-                {tag}
-              </span>
-            ))
-          }
+          {project.data.tags.map((tag) => <span class="tag-chip">{tag}</span>)}
         </div>
 
         {
           (project.data.website || project.data.repository) && (
-            <div class="mt-6 flex flex-wrap gap-3">
+            <div class="mt-5 flex flex-wrap gap-3">
               {project.data.website && (
                 <a
                   href={project.data.website}
                   target="_blank"
                   rel="noreferrer"
-                  class="rounded-lg bg-black px-5 py-2.5 text-white"
+                  class="button-primary"
                 >
                   访问项目
                 </a>
@@ -93,7 +85,7 @@ const statusLabels = {
                   href={project.data.repository}
                   target="_blank"
                   rel="noreferrer"
-                  class="rounded-lg border px-5 py-2.5"
+                  class="button-secondary"
                 >
                   查看源码
                 </a>
@@ -109,7 +101,7 @@ const statusLabels = {
             'lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12',
         ]}
       >
-        <div class="prose prose-lg min-w-0 max-w-none">
+        <div class="article-prose prose prose-lg min-w-0 max-w-none">
           <Content />
         </div>
 

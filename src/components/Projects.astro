@@ -24,9 +24,9 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<section class="mx-auto max-w-5xl px-6 pt-12 pb-20 sm:pt-16">
+<section class="mx-auto max-w-5xl px-6 pt-10 pb-20 sm:pt-12">
   <div class="flex items-center justify-between gap-6">
-    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">项目</h1>
+    <h1 class="text-4xl weight-display tracking-tight sm:text-5xl">项目</h1>
 
     <ExpandableSearch
       id="project-search"
@@ -37,13 +37,13 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
 
   <p
     id="project-search-status"
-    class="mt-4 text-sm text-gray-500"
+    class="mt-4 text-sm text-ink-muted"
     aria-live="polite"
   >
     共 {projects.length} 个项目
   </p>
 
-  <div id="project-list" class="mt-10 grid gap-6 md:grid-cols-3">
+  <div id="project-list" class="mt-8 grid gap-6 md:grid-cols-3">
     {
       projects.map((project) => (
         <div data-project data-search={project.searchText}>
@@ -59,13 +59,14 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
     }
   </div>
 
-  <p id="project-search-empty" class="mt-10 hidden text-gray-500">
+  <p id="project-search-empty" class="mt-10 hidden text-ink-muted">
     没有找到匹配的项目。
   </p>
 </section>
 
 <script>
-  const searchInput = document.querySelector<HTMLInputElement>('#project-search');
+  const searchInput =
+    document.querySelector<HTMLInputElement>('#project-search');
   const searchStatus = document.querySelector<HTMLElement>(
     '#project-search-status',
   );

@@ -20,6 +20,7 @@ interface Props {
   schemaType?: SchemaType;
   schemaKeywords?: string[];
   robots?: string;
+  pageTone?: 'default' | 'home' | 'about';
   article?: {
     publishedTime: string;
     section?: string;
@@ -29,14 +30,14 @@ interface Props {
 
 const {
   title,
-  description =
-    'Alex Ye 的个人技术网站，记录人工智能、大语言模型、软件工程与计算机系统相关的项目和文章。',
+  description = 'Alex Ye 的个人技术网站，记录人工智能、大语言模型、软件工程与计算机系统相关的项目和文章。',
   ogType = 'website',
   ogImage = '/og-default.png',
   ogImageAlt = 'Alex Ye Lab 个人技术博客',
   schemaType,
   schemaKeywords,
   robots,
+  pageTone = 'default',
   article,
 } = Astro.props;
 
@@ -148,6 +149,14 @@ const structuredDataJSON = JSON.stringify(structuredData).replace(
     <meta name="twitter:image" content={ogImageURL} />
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
+    <link
+      rel="preload"
+      href="/fonts/google-sans-flex-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta name="generator" content={Astro.generator} />
@@ -165,24 +174,22 @@ const structuredDataJSON = JSON.stringify(structuredData).replace(
     <title>{pageTitle}</title>
   </head>
 
-  <body>
+  <body
+    class:list={[
+      'flex min-h-dvh flex-col text-ink antialiased',
+      pageTone === 'default' && 'bg-canvas',
+      pageTone === 'home' && 'page-home',
+      pageTone === 'about' && 'page-about',
+    ]}
+  >
     <a class="skip-link" href="#main-content">跳到主要内容</a>
 
     <Navbar />
 
-    <main id="main-content" tabindex="-1" class="min-h-screen">
+    <main id="main-content" tabindex="-1" class="flex-1">
       <slot />
     </main>
 
     <Footer />
   </body>
 </html>
-
-<style>
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>

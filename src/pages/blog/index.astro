@@ -37,15 +37,15 @@ const postsWithInfo = posts
   description="Alex Ye 关于人工智能、大语言模型、软件工程与计算机系统的技术文章和学习笔记。"
   schemaType="CollectionPage"
 >
-  <section class="mx-auto max-w-5xl px-6 pt-12 pb-24 sm:pt-16">
-    <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">博客</h1>
+  <section class="mx-auto max-w-5xl px-6 pt-10 pb-24 sm:pt-12">
+    <div class="flex items-center justify-between gap-6">
+      <h1 class="text-4xl weight-display tracking-tight sm:text-5xl">博客</h1>
 
-      <div class="flex w-full items-center gap-3 sm:w-auto">
+      <div class="flex shrink-0 items-center gap-3">
         <a
           href="/tags"
           aria-label="浏览全部标签"
-          class="tag-index-link flex size-11 shrink-0 items-center overflow-hidden rounded-lg border text-gray-600 transition hover:text-black"
+          class="tag-index-link control-shell flex size-11 shrink-0 items-center overflow-hidden"
         >
           <svg
             aria-hidden="true"
@@ -62,7 +62,9 @@ const postsWithInfo = posts
             ></path>
             <circle cx="9" cy="9" r="1.25"></circle>
           </svg>
-          <span class="tag-index-label ml-2 whitespace-nowrap text-sm font-medium">
+          <span
+            class="tag-index-label ml-2 whitespace-nowrap text-sm font-medium"
+          >
             浏览全部标签
           </span>
         </a>
@@ -75,11 +77,15 @@ const postsWithInfo = posts
       </div>
     </div>
 
-    <p id="search-status" class="mt-4 text-sm text-gray-500" aria-live="polite">
+    <p
+      id="search-status"
+      class="mt-4 text-sm text-ink-muted"
+      aria-live="polite"
+    >
       共 {postsWithInfo.length} 篇文章
     </p>
 
-    <div id="blog-posts" class="mt-10 grid gap-6">
+    <div id="blog-posts" class="mt-8 grid gap-6">
       {
         postsWithInfo.map((post) => (
           <div data-blog-post data-search={post.searchText}>
@@ -97,7 +103,7 @@ const postsWithInfo = posts
       }
     </div>
 
-    <p id="search-empty" class="mt-10 hidden text-gray-500">
+    <p id="search-empty" class="mt-10 hidden text-ink-muted">
       没有找到匹配的文章。
     </p>
   </section>
@@ -126,7 +132,11 @@ const postsWithInfo = posts
     .tag-index-link:hover,
     .tag-index-link:focus-visible {
       width: 9.75rem;
-      background-color: #f9fafb;
+      background-color: color-mix(
+        in srgb,
+        var(--site-accent-soft) 70%,
+        transparent
+      );
     }
 
     .tag-index-link:hover .tag-index-label,
@@ -135,7 +145,6 @@ const postsWithInfo = posts
       opacity: 1;
       transform: translateX(0);
     }
-
   }
 
   @media (prefers-reduced-motion: reduce) {

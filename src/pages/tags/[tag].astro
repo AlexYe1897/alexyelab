@@ -46,20 +46,22 @@ const postsWithInfo = posts
   description={`浏览 Alex Ye Lab 中与 ${tag} 相关的技术文章。`}
   schemaType="CollectionPage"
 >
-  <section class="mx-auto max-w-5xl px-6 py-24">
-    <a href="/blog" class="text-sm text-gray-500 transition hover:text-black">
+  <section class="mx-auto max-w-5xl px-6 pt-10 pb-24 sm:pt-12">
+    <a href="/blog" class="text-sm text-ink-muted transition hover:text-accent">
       ← 返回博客
     </a>
 
-    <div class="mt-8">
-      <h1 class="text-4xl font-bold tracking-tight">
+    <div class="mt-6">
+      <h1 class="text-4xl weight-display tracking-tight sm:text-5xl">
         与 {tag} 相关的文章
       </h1>
 
-      <p class="mt-3 text-gray-500">共 {postsWithInfo.length} 篇文章</p>
+      <p class="mt-4 text-sm text-ink-muted">
+        共 {postsWithInfo.length} 篇文章
+      </p>
     </div>
 
-    <div class="mt-10 grid gap-6">
+    <div class="mt-8 grid gap-6">
       {
         postsWithInfo.map((post) => (
           <BlogCard

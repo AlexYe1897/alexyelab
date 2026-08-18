@@ -28,8 +28,7 @@
 
   .code-block-language {
     overflow: hidden;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-      'Liberation Mono', 'Courier New', monospace;
+    font-family: var(--site-font-mono);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -164,7 +163,8 @@
 
       codeBlock.dataset.enhanced = 'true';
 
-      const rawLanguage = codeBlock.dataset.language?.trim().toLowerCase() || 'text';
+      const rawLanguage =
+        codeBlock.dataset.language?.trim().toLowerCase() || 'text';
       const languageName = languageNames[rawLanguage] || rawLanguage;
 
       const wrapper = document.createElement('div');
@@ -194,7 +194,8 @@
       codeBlock.before(wrapper);
       wrapper.append(toolbar, codeBlock);
 
-      const copyLabel = copyButton.querySelector<HTMLElement>('.code-copy-label');
+      const copyLabel =
+        copyButton.querySelector<HTMLElement>('.code-copy-label');
       let resetTimer: number | undefined;
 
       copyButton.addEventListener('click', async () => {
