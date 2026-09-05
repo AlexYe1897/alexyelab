@@ -16,7 +16,7 @@
   src: url('/fonts/noto-sans-sc-site.woff2') format('woff2');
   font-style: normal;
   font-weight: 100 900;
-  font-display: swap;
+  font-display: fallback;
 }
 
 @font-face {

@@ -1,10 +1,5 @@
 <section class="home-hero">
   <div class="home-hero-copy">
-    <p class="home-kicker">
-      <span class="home-status-dot" aria-hidden="true"></span>
-      Personal AI Lab
-    </p>
-
     <h1 class="home-title">Alex Ye Lab</h1>
 
     <p class="home-intro">Alex Ye 的个人 Blog</p>
@@ -42,10 +37,10 @@
     position: relative;
     z-index: 4;
     display: flex;
-    min-height: calc(100svh - 5rem);
+    min-height: max(calc(88svh - 5rem), 50rem);
     align-items: flex-start;
     justify-content: center;
-    padding: clamp(5.5rem, 13vh, 9rem) 1.5rem 7rem;
+    padding: clamp(4rem, 9vh, 6.5rem) 1.5rem 6rem;
     text-align: center;
   }
 
@@ -53,28 +48,8 @@
     width: min(100%, 54rem);
   }
 
-  .home-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    color: rgb(151 181 169 / 84%);
-    font-family: var(--site-font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-  }
-
-  .home-status-dot {
-    width: 0.42rem;
-    height: 0.42rem;
-    border-radius: 50%;
-    background: #72ddb1;
-    box-shadow: 0 0 0.8rem rgb(98 222 173 / 72%);
-    animation: home-status-pulse 3s ease-in-out infinite;
-  }
-
   .home-title {
-    margin-top: 1.25rem;
+    margin-top: 0;
     color: #f1faf6;
     font-size: clamp(3.4rem, 8vw, 7.25rem);
     font-weight: 750;
@@ -157,18 +132,6 @@
     }
   }
 
-  @keyframes home-status-pulse {
-    0%,
-    100% {
-      opacity: 0.56;
-      transform: scale(0.84);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
   @media (max-width: 767px) {
     .home-hero {
       min-height: 42rem;
@@ -190,10 +153,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .home-status-dot {
-      animation: none;
-    }
-
     .home-action,
     .home-action svg {
       transition: none;

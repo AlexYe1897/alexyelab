@@ -222,9 +222,24 @@ const stars = Array.from({ length: 118 }, (_, index) => {
 
   @media (max-width: 767px) {
     .home-earth {
-      bottom: -1rem;
+      top: 0;
+      bottom: auto;
       width: 68rem;
       opacity: 0.88;
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 76%,
+        rgb(0 0 0 / 82%) 84%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 76%,
+        rgb(0 0 0 / 82%) 84%,
+        transparent 100%
+      );
     }
 
     .home-star:nth-child(4n) {
