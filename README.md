@@ -95,8 +95,11 @@ npm install
 以后台模式启动开发服务器：
 
 ```sh
-npm run astro -- dev --background
+npm run dev -- --background
 ```
+
+启动开发服务器或执行正式构建前，项目会自动根据当前页面与 Markdown
+内容生成精简的中文字体文件，无需手动维护字符列表。
 
 管理后台开发服务器：
 
