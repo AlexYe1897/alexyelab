@@ -24,8 +24,8 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<section class="mx-auto max-w-5xl px-6 pt-10 pb-20 sm:pt-12">
-  <div class="flex items-center justify-between gap-6">
+<section class="collection-page mx-auto max-w-5xl px-6 pt-10 pb-20 sm:pt-12">
+  <div class="collection-header flex items-center justify-between gap-6">
     <h1 class="text-4xl weight-display tracking-tight sm:text-5xl">项目</h1>
 
     <ExpandableSearch
@@ -37,13 +37,16 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
 
   <p
     id="project-search-status"
-    class="mt-4 text-sm text-ink-muted"
+    class="collection-count mt-4 text-sm text-ink-muted"
     aria-live="polite"
   >
     共 {projects.length} 个项目
   </p>
 
-  <div id="project-list" class="mt-8 grid gap-6 md:grid-cols-3">
+  <div
+    id="project-list"
+    class="collection-list mt-8 grid gap-5 sm:gap-6 md:grid-cols-3"
+  >
     {
       projects.map((project) => (
         <div data-project data-search={project.searchText}>
@@ -59,56 +62,59 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
     }
   </div>
 
-  <p id="project-search-empty" class="mt-10 hidden text-ink-muted">
+  <p
+    id="project-search-empty"
+    class="collection-empty surface-card mt-10 hidden px-5 py-6 text-ink-muted"
+  >
     没有找到匹配的项目。
   </p>
 </section>
 
 <script>
-  const searchInput =
-    document.querySelector<HTMLInputElement>('#project-search');
-  const searchStatus = document.querySelector<HTMLElement>(
-    '#project-search-status',
-  );
-  const emptyMessage = document.querySelector<HTMLElement>(
-    '#project-search-empty',
-  );
-  const projectElements = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-project]'),
-  );
-
   const normalize = (value: string) => value.trim().toLocaleLowerCase();
 
-  const updateSearch = () => {
+  const initializeProjectSearch = () => {
+    const searchInput =
+      document.querySelector<HTMLInputElement>('#project-search');
+    const searchStatus = document.querySelector<HTMLElement>(
+      '#project-search-status',
+    );
+    const emptyMessage = document.querySelector<HTMLElement>(
+      '#project-search-empty',
+    );
+    const projectElements = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-project]'),
+    );
+
     if (!searchInput || !searchStatus || !emptyMessage) return;
 
-    const query = normalize(searchInput.value);
-    const terms = query.split(/\s+/).filter(Boolean);
-    let visibleCount = 0;
+    const updateSearch = () => {
+      const query = normalize(searchInput.value);
+      const terms = query.split(/\s+/).filter(Boolean);
+      let visibleCount = 0;
 
-    for (const projectElement of projectElements) {
-      const searchText = projectElement.dataset.search ?? '';
-      const isMatch = terms.every((term) => searchText.includes(term));
+      for (const projectElement of projectElements) {
+        const searchText = projectElement.dataset.search ?? '';
+        const isMatch = terms.every((term) => searchText.includes(term));
 
-      projectElement.hidden = !isMatch;
-      if (isMatch) visibleCount += 1;
-    }
+        projectElement.hidden = !isMatch;
+        if (isMatch) visibleCount += 1;
+      }
 
-    searchStatus.textContent = query
-      ? `找到 ${visibleCount} 个相关项目`
-      : `共 ${projectElements.length} 个项目`;
-    emptyMessage.classList.toggle('hidden', visibleCount > 0);
+      searchStatus.textContent = query
+        ? `找到 ${visibleCount} 个相关项目`
+        : `共 ${projectElements.length} 个项目`;
+      emptyMessage.classList.toggle('hidden', visibleCount > 0);
 
-    const url = new URL(window.location.href);
-    if (query) {
-      url.searchParams.set('q', searchInput.value.trim());
-    } else {
-      url.searchParams.delete('q');
-    }
-    window.history.replaceState({}, '', url);
-  };
+      const url = new URL(window.location.href);
+      if (query) {
+        url.searchParams.set('q', searchInput.value.trim());
+      } else {
+        url.searchParams.delete('q');
+      }
+      window.history.replaceState({}, '', url);
+    };
 
-  if (searchInput) {
     const initialQuery = new URL(window.location.href).searchParams.get('q');
     if (initialQuery) searchInput.value = initialQuery;
 
@@ -123,5 +129,7 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
 
     searchInput.addEventListener('input', scheduleSearch);
     updateSearch();
-  }
+  };
+
+  document.addEventListener('astro:page-load', initializeProjectSearch);
 </script>

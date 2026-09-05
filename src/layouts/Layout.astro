@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import { ClientRouter, fade } from 'astro:transitions';
 
 type SchemaType =
   | 'WebSite'
@@ -98,12 +99,71 @@ const structuredDataJSON = JSON.stringify(structuredData).replace(
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html
+  lang="zh-CN"
+  data-theme={pageTone === 'home' ? 'dark' : undefined}
+  data-theme-lock={pageTone === 'home' ? 'dark' : undefined}
+  transition:animate={fade({ duration: '180ms' })}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      content={pageTone === 'home' ? '#020806' : '#f7faf9'}
+    />
     <meta name="description" content={description} />
     {robots && <meta name="robots" content={robots} />}
+
+    <script is:inline>
+      (() => {
+        const storageKey = 'alexyelab-theme';
+        const applyDocumentTheme = () => {
+          const root = document.documentElement;
+          const lockedTheme = root.dataset.themeLock;
+          let storedTheme = null;
+
+          try {
+            storedTheme = window.localStorage.getItem(storageKey);
+          } catch {
+            // localStorage may be unavailable in privacy-restricted contexts.
+          }
+
+          const preferredTheme = window.matchMedia(
+            '(prefers-color-scheme: dark)',
+          ).matches
+            ? 'dark'
+            : 'light';
+          const theme =
+            lockedTheme === 'dark'
+              ? 'dark'
+              : storedTheme === 'dark' || storedTheme === 'light'
+                ? storedTheme
+                : preferredTheme;
+
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+
+          const themeColor = document.querySelector('meta[name="theme-color"]');
+          themeColor?.setAttribute(
+            'content',
+            theme === 'dark'
+              ? lockedTheme === 'dark'
+                ? '#020806'
+                : '#111416'
+              : '#f7faf9',
+          );
+        };
+
+        if (!window.__alexYeThemeSwapBound) {
+          document.addEventListener('astro:after-swap', applyDocumentTheme);
+          window.__alexYeThemeSwapBound = true;
+        }
+
+        applyDocumentTheme();
+      })();
+    </script>
 
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" href="/sitemap-index.xml" />
@@ -160,6 +220,7 @@ const structuredDataJSON = JSON.stringify(structuredData).replace(
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
 
     {
       !robots?.includes('noindex') && (

@@ -7,18 +7,43 @@ interface Props {
   category: string;
   slug: string;
   words: number;
+  variant?: 'default' | 'home';
 }
 
-const { title, description, date, tags, category, slug, words } = Astro.props;
+const {
+  title,
+  description,
+  date,
+  tags,
+  category,
+  slug,
+  words,
+  variant = 'default',
+} = Astro.props;
+
+const isHome = variant === 'home';
+const visibleTags = isHome ? tags.slice(0, 3) : tags;
 ---
 
-<a href={`/blog/${slug}`} class="block">
-  <article class="interactive-card p-5 sm:p-6">
-    <h2 class="text-xl weight-heading">
+<a href={`/blog/${slug}`} class:list={['block', { 'h-full': isHome }]}>
+  <article
+    class:list={[
+      'interactive-card',
+      isHome
+        ? 'home-content-card flex h-full flex-col p-4 sm:p-5'
+        : 'collection-card p-5 sm:p-6',
+    ]}
+  >
+    <h2 class:list={[isHome ? 'text-lg' : 'text-xl', 'weight-heading']}>
       {title}
     </h2>
 
-    <div class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-ink-faint">
+    <div
+      class:list={[
+        'flex flex-wrap gap-x-3 gap-y-1 text-ink-faint',
+        isHome ? 'mt-2 text-xs sm:text-sm' : 'mt-3 text-sm',
+      ]}
+    >
       <span class="whitespace-nowrap">{category}</span>
 
       <span aria-hidden="true" class="hidden sm:inline">·</span>
@@ -30,16 +55,24 @@ const { title, description, date, tags, category, slug, words } = Astro.props;
       <span class="whitespace-nowrap">{words} 字</span>
     </div>
 
-    <p class="mt-4 text-ink-muted">
+    <p
+      class:list={[
+        'text-ink-muted',
+        isHome ? 'mt-3 line-clamp-2 text-sm leading-6' : 'mt-4 leading-7',
+      ]}
+    >
       {description}
     </p>
 
     <div
-      class="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+      class:list={[
+        'flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between',
+        isHome ? 'mt-auto pt-4' : 'mt-5 gap-4',
+      ]}
     >
       <div class="flex min-w-0 flex-wrap gap-2">
         {
-          tags.map((tag) => (
+          visibleTags.map((tag) => (
             <span class="tag-chip whitespace-nowrap">{tag}</span>
           ))
         }

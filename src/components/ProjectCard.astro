@@ -5,25 +5,41 @@ interface Props {
   description: string;
   tags: string[];
   headingLevel?: 'h2' | 'h3';
+  variant?: 'default' | 'home';
 }
 
-const { slug, title, description, tags, headingLevel = 'h3' } = Astro.props;
+const {
+  slug,
+  title,
+  description,
+  tags,
+  headingLevel = 'h3',
+  variant = 'default',
+} = Astro.props;
 
 const visibleTags = tags.slice(0, 3);
 const Heading = headingLevel;
+const isHome = variant === 'home';
 ---
 
 <a href={`/projects/${slug}`} class="block h-full">
-  <article class="interactive-card flex h-full flex-col p-5 sm:p-6">
-    <Heading class="text-xl weight-display">
+  <article
+    class:list={[
+      'interactive-card flex h-full flex-col',
+      isHome ? 'home-content-card p-4 sm:p-5' : 'collection-card p-5 sm:p-6',
+    ]}
+  >
+    <Heading class:list={[isHome ? 'text-lg' : 'text-xl', 'weight-display']}>
       {title}
     </Heading>
 
-    <p class="mt-3 text-sm leading-6 text-ink-muted">
+    <p class="mt-3 line-clamp-2 text-sm leading-6 text-ink-muted">
       {description}
     </p>
 
-    <div class="mt-auto flex flex-wrap gap-2 pt-5">
+    <div
+      class:list={['mt-auto flex flex-wrap gap-2', isHome ? 'pt-4' : 'pt-5']}
+    >
       {visibleTags.map((tag) => <span class="tag-chip">{tag}</span>)}
     </div>
   </article>

@@ -266,124 +266,149 @@ const aboutNavigation = [
 </section>
 
 <script>
-  const intro = document.querySelector<HTMLElement>('[data-about-intro]');
-  const navigation = document.querySelector<HTMLElement>('[data-about-nav]');
-  const sections = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-about-section]'),
-  );
-  const toneSections = intro ? [intro, ...sections] : sections;
-  const links = Array.from(
-    document.querySelectorAll<HTMLAnchorElement>('[data-about-link]'),
-  );
+  let cleanupAbout: (() => void) | undefined;
 
-  if (intro && navigation) {
-    const introObserver = new IntersectionObserver(([entry]) => {
-      navigation.classList.toggle('is-visible', !entry.isIntersecting);
-    });
+  const initializeAbout = () => {
+    cleanupAbout?.();
 
-    introObserver.observe(intro);
-  }
-
-  const setNavigationSection = (section: HTMLElement) => {
-    for (const link of links) {
-      const isCurrent = link.dataset.aboutLink === section.id;
-      if (isCurrent) {
-        link.setAttribute('aria-current', 'location');
-      } else {
-        link.removeAttribute('aria-current');
-      }
-    }
-  };
-
-  if (sections.length > 0 && links.length > 0) {
-    const sectionObserver = new IntersectionObserver(
-      (entries) => {
-        const activeSection = entries.find((entry) => entry.isIntersecting);
-        if (activeSection?.target instanceof HTMLElement) {
-          setNavigationSection(activeSection.target);
-        }
-      },
-      { rootMargin: '-20% 0px -65%' },
-    );
-
-    sections.forEach((section) => sectionObserver.observe(section));
-  }
-
-  const setBackgroundTone = (section: HTMLElement) => {
-    const tone = section.dataset.aboutTone ?? 'intro';
-    document.body.dataset.aboutTone = tone;
-  };
-
-  if (intro) {
-    setBackgroundTone(intro);
-  }
-
-  if (toneSections.length > 0) {
+    const controller = new AbortController();
+    const observers: IntersectionObserver[] = [];
     let updateFrame: number | undefined;
 
-    const updateActiveTone = () => {
-      updateFrame = undefined;
+    const intro = document.querySelector<HTMLElement>('[data-about-intro]');
+    const navigation = document.querySelector<HTMLElement>('[data-about-nav]');
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-about-section]'),
+    );
+    const toneSections = intro ? [intro, ...sections] : sections;
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('[data-about-link]'),
+    );
 
-      const activationLine = window.innerHeight * 0.3;
-      let activeSection = toneSections[0];
-      const firstContentSection = sections[0];
+    if (intro && navigation) {
+      const introObserver = new IntersectionObserver(([entry]) => {
+        navigation.classList.toggle('is-visible', !entry.isIntersecting);
+      });
 
-      if (
-        firstContentSection &&
-        firstContentSection.getBoundingClientRect().top <= activationLine
-      ) {
-        activeSection = sections.reduce((closestSection, section) => {
-          const closestRect = closestSection.getBoundingClientRect();
-          const sectionRect = section.getBoundingClientRect();
-          const closestDistance = Math.abs(
-            closestRect.top + closestRect.height / 2 - activationLine,
-          );
-          const sectionDistance = Math.abs(
-            sectionRect.top + sectionRect.height / 2 - activationLine,
-          );
+      introObserver.observe(intro);
+      observers.push(introObserver);
+    }
 
-          return sectionDistance < closestDistance ? section : closestSection;
-        }, firstContentSection);
+    const setNavigationSection = (section: HTMLElement) => {
+      for (const link of links) {
+        const isCurrent = link.dataset.aboutLink === section.id;
+        if (isCurrent) {
+          link.setAttribute('aria-current', 'location');
+        } else {
+          link.removeAttribute('aria-current');
+        }
       }
-
-      const contactSection = sections.find(
-        (section) => section.id === 'contact',
-      );
-      const timelineSection = sections.find(
-        (section) => section.id === 'timeline',
-      );
-      const maxScroll =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const remainingScroll = Math.max(0, maxScroll - window.scrollY);
-      const contactRange = Math.min(
-        520,
-        Math.max(320, window.innerHeight * 0.45),
-      );
-      const timelineRange = Math.min(
-        160,
-        Math.max(96, window.innerHeight * 0.12),
-      );
-
-      if (contactSection && remainingScroll <= contactRange) {
-        activeSection = contactSection;
-      }
-
-      if (timelineSection && remainingScroll <= timelineRange) {
-        activeSection = timelineSection;
-      }
-
-      setBackgroundTone(activeSection);
     };
 
-    const scheduleToneUpdate = () => {
-      if (updateFrame !== undefined) return;
-      updateFrame = window.requestAnimationFrame(updateActiveTone);
+    if (sections.length > 0 && links.length > 0) {
+      const sectionObserver = new IntersectionObserver(
+        (entries) => {
+          const activeSection = entries.find((entry) => entry.isIntersecting);
+          if (activeSection?.target instanceof HTMLElement) {
+            setNavigationSection(activeSection.target);
+          }
+        },
+        { rootMargin: '-20% 0px -65%' },
+      );
+
+      sections.forEach((section) => sectionObserver.observe(section));
+      observers.push(sectionObserver);
+    }
+
+    const setBackgroundTone = (section: HTMLElement) => {
+      const tone = section.dataset.aboutTone ?? 'intro';
+      document.body.dataset.aboutTone = tone;
     };
 
-    window.addEventListener('scroll', scheduleToneUpdate, { passive: true });
-    window.addEventListener('resize', scheduleToneUpdate);
-    scheduleToneUpdate();
-  }
+    if (intro) {
+      setBackgroundTone(intro);
+    }
+
+    if (toneSections.length > 0) {
+      const updateActiveTone = () => {
+        updateFrame = undefined;
+
+        const activationLine = window.innerHeight * 0.3;
+        let activeSection = toneSections[0];
+        const firstContentSection = sections[0];
+
+        if (
+          firstContentSection &&
+          firstContentSection.getBoundingClientRect().top <= activationLine
+        ) {
+          activeSection = sections.reduce((closestSection, section) => {
+            const closestRect = closestSection.getBoundingClientRect();
+            const sectionRect = section.getBoundingClientRect();
+            const closestDistance = Math.abs(
+              closestRect.top + closestRect.height / 2 - activationLine,
+            );
+            const sectionDistance = Math.abs(
+              sectionRect.top + sectionRect.height / 2 - activationLine,
+            );
+
+            return sectionDistance < closestDistance ? section : closestSection;
+          }, firstContentSection);
+        }
+
+        const contactSection = sections.find(
+          (section) => section.id === 'contact',
+        );
+        const timelineSection = sections.find(
+          (section) => section.id === 'timeline',
+        );
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const remainingScroll = Math.max(0, maxScroll - window.scrollY);
+        const contactRange = Math.min(
+          520,
+          Math.max(320, window.innerHeight * 0.45),
+        );
+        const timelineRange = Math.min(
+          160,
+          Math.max(96, window.innerHeight * 0.12),
+        );
+
+        if (contactSection && remainingScroll <= contactRange) {
+          activeSection = contactSection;
+        }
+
+        if (timelineSection && remainingScroll <= timelineRange) {
+          activeSection = timelineSection;
+        }
+
+        setBackgroundTone(activeSection);
+      };
+
+      const scheduleToneUpdate = () => {
+        if (updateFrame !== undefined) return;
+        updateFrame = window.requestAnimationFrame(updateActiveTone);
+      };
+
+      window.addEventListener('scroll', scheduleToneUpdate, {
+        passive: true,
+        signal: controller.signal,
+      });
+      window.addEventListener('resize', scheduleToneUpdate, {
+        signal: controller.signal,
+      });
+      scheduleToneUpdate();
+    }
+
+    cleanupAbout = () => {
+      controller.abort();
+      observers.forEach((observer) => observer.disconnect());
+      if (updateFrame !== undefined) {
+        window.cancelAnimationFrame(updateFrame);
+      }
+    };
+  };
+
+  document.addEventListener('astro:page-load', initializeAbout);
 </script>
 
 <style>

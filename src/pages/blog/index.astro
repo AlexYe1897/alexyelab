@@ -37,11 +37,11 @@ const postsWithInfo = posts
   description="Alex Ye 关于人工智能、大语言模型、软件工程与计算机系统的技术文章和学习笔记。"
   schemaType="CollectionPage"
 >
-  <section class="mx-auto max-w-5xl px-6 pt-10 pb-24 sm:pt-12">
-    <div class="flex items-center justify-between gap-6">
+  <section class="collection-page mx-auto max-w-5xl px-6 pt-10 pb-24 sm:pt-12">
+    <div class="collection-header flex items-center justify-between gap-6">
       <h1 class="text-4xl weight-display tracking-tight sm:text-5xl">博客</h1>
 
-      <div class="flex shrink-0 items-center gap-3">
+      <div class="collection-actions flex shrink-0 items-center gap-2">
         <a
           href="/tags"
           aria-label="浏览全部标签"
@@ -79,13 +79,13 @@ const postsWithInfo = posts
 
     <p
       id="search-status"
-      class="mt-4 text-sm text-ink-muted"
+      class="collection-count mt-4 text-sm text-ink-muted"
       aria-live="polite"
     >
       共 {postsWithInfo.length} 篇文章
     </p>
 
-    <div id="blog-posts" class="mt-8 grid gap-6">
+    <div id="blog-posts" class="collection-list mt-8 grid gap-5 sm:gap-6">
       {
         postsWithInfo.map((post) => (
           <div data-blog-post data-search={post.searchText}>
@@ -103,7 +103,10 @@ const postsWithInfo = posts
       }
     </div>
 
-    <p id="search-empty" class="mt-10 hidden text-ink-muted">
+    <p
+      id="search-empty"
+      class="collection-empty surface-card mt-10 hidden px-5 py-6 text-ink-muted"
+    >
       没有找到匹配的文章。
     </p>
   </section>
@@ -112,6 +115,11 @@ const postsWithInfo = posts
 <style>
   .tag-index-link {
     width: 2.75rem;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     transition:
       width 180ms ease,
       color 150ms ease,
@@ -132,6 +140,7 @@ const postsWithInfo = posts
     .tag-index-link:hover,
     .tag-index-link:focus-visible {
       width: 9.75rem;
+      border-color: transparent;
       background-color: color-mix(
         in srgb,
         var(--site-accent-soft) 70%,
@@ -156,45 +165,46 @@ const postsWithInfo = posts
 </style>
 
 <script>
-  const searchInput = document.querySelector<HTMLInputElement>('#blog-search');
-  const searchStatus = document.querySelector<HTMLElement>('#search-status');
-  const emptyMessage = document.querySelector<HTMLElement>('#search-empty');
-  const postElements = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-blog-post]'),
-  );
-
   const normalize = (value: string) => value.trim().toLocaleLowerCase();
 
-  const updateSearch = () => {
+  const initializeBlogSearch = () => {
+    const searchInput =
+      document.querySelector<HTMLInputElement>('#blog-search');
+    const searchStatus = document.querySelector<HTMLElement>('#search-status');
+    const emptyMessage = document.querySelector<HTMLElement>('#search-empty');
+    const postElements = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-blog-post]'),
+    );
+
     if (!searchInput || !searchStatus || !emptyMessage) return;
 
-    const query = normalize(searchInput.value);
-    const terms = query.split(/\s+/).filter(Boolean);
-    let visibleCount = 0;
+    const updateSearch = () => {
+      const query = normalize(searchInput.value);
+      const terms = query.split(/\s+/).filter(Boolean);
+      let visibleCount = 0;
 
-    for (const postElement of postElements) {
-      const searchText = postElement.dataset.search ?? '';
-      const isMatch = terms.every((term) => searchText.includes(term));
+      for (const postElement of postElements) {
+        const searchText = postElement.dataset.search ?? '';
+        const isMatch = terms.every((term) => searchText.includes(term));
 
-      postElement.hidden = !isMatch;
-      if (isMatch) visibleCount += 1;
-    }
+        postElement.hidden = !isMatch;
+        if (isMatch) visibleCount += 1;
+      }
 
-    searchStatus.textContent = query
-      ? `找到 ${visibleCount} 篇相关文章`
-      : `共 ${postElements.length} 篇文章`;
-    emptyMessage.classList.toggle('hidden', visibleCount > 0);
+      searchStatus.textContent = query
+        ? `找到 ${visibleCount} 篇相关文章`
+        : `共 ${postElements.length} 篇文章`;
+      emptyMessage.classList.toggle('hidden', visibleCount > 0);
 
-    const url = new URL(window.location.href);
-    if (query) {
-      url.searchParams.set('q', searchInput.value.trim());
-    } else {
-      url.searchParams.delete('q');
-    }
-    window.history.replaceState({}, '', url);
-  };
+      const url = new URL(window.location.href);
+      if (query) {
+        url.searchParams.set('q', searchInput.value.trim());
+      } else {
+        url.searchParams.delete('q');
+      }
+      window.history.replaceState({}, '', url);
+    };
 
-  if (searchInput) {
     const initialQuery = new URL(window.location.href).searchParams.get('q');
     if (initialQuery) searchInput.value = initialQuery;
 
@@ -209,5 +219,7 @@ const postsWithInfo = posts
 
     searchInput.addEventListener('input', scheduleSearch);
     updateSearch();
-  }
+  };
+
+  document.addEventListener('astro:page-load', initializeBlogSearch);
 </script>

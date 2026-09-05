@@ -40,7 +40,11 @@ const tableOfContents = headings
 
 {
   tableOfContents.length > 0 && (
-    <nav data-table-of-contents aria-label={label} class="surface-card p-4">
+    <nav
+      data-table-of-contents
+      aria-label={label}
+      class="detail-toc surface-card p-4"
+    >
       <h2 class="mb-3 weight-heading">目录</h2>
 
       <ul class="space-y-2 text-sm">
@@ -105,76 +109,104 @@ const tableOfContents = headings
 </style>
 
 <script>
-  document
-    .querySelectorAll<HTMLElement>('[data-table-of-contents]')
-    .forEach((tableOfContents) => {
-      const links = Array.from(
-        tableOfContents.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'),
-      );
+  let tableOfContentsController: AbortController | undefined;
+  let tableOfContentsFrames: number[] = [];
 
-      const entries = links
-        .map((link) => {
-          const hash = link.getAttribute('href')?.slice(1);
-          if (!hash) return undefined;
+  const initializeTableOfContents = () => {
+    tableOfContentsController?.abort();
+    tableOfContentsFrames.forEach((frame) =>
+      window.cancelAnimationFrame(frame),
+    );
+    tableOfContentsFrames = [];
+    tableOfContentsController = new AbortController();
+    const { signal } = tableOfContentsController;
 
-          let headingId = hash;
-          try {
-            headingId = decodeURIComponent(hash);
-          } catch {
-            // Keep the original hash if it is already decoded.
+    document
+      .querySelectorAll<HTMLElement>('[data-table-of-contents]')
+      .forEach((tableOfContents) => {
+        const links = Array.from(
+          tableOfContents.querySelectorAll<HTMLAnchorElement>(
+            '[data-toc-link]',
+          ),
+        );
+
+        const entries = links
+          .map((link) => {
+            const hash = link.getAttribute('href')?.slice(1);
+            if (!hash) return undefined;
+
+            let headingId = hash;
+            try {
+              headingId = decodeURIComponent(hash);
+            } catch {
+              // Keep the original hash if it is already decoded.
+            }
+
+            const heading = document.getElementById(headingId);
+            return heading ? { link, heading } : undefined;
+          })
+          .filter((entry) => entry !== undefined);
+
+        if (entries.length === 0) return;
+
+        const setActiveLink = (activeLink: HTMLAnchorElement) => {
+          for (const link of links) {
+            const isActive = link === activeLink;
+            link.toggleAttribute('data-active', isActive);
+
+            if (isActive) {
+              link.setAttribute('aria-current', 'location');
+            } else {
+              link.removeAttribute('aria-current');
+            }
+          }
+        };
+
+        const updateActiveLink = () => {
+          const readingLine = Math.min(window.innerHeight * 0.3, 160);
+          let activeEntry = entries[0];
+
+          for (const entry of entries) {
+            if (entry.heading.getBoundingClientRect().top <= readingLine) {
+              activeEntry = entry;
+            } else {
+              break;
+            }
           }
 
-          const heading = document.getElementById(headingId);
-          return heading ? { link, heading } : undefined;
-        })
-        .filter((entry) => entry !== undefined);
+          setActiveLink(activeEntry.link);
+        };
 
-      if (entries.length === 0) return;
+        let scheduledFrame: number | undefined;
+        const scheduleUpdate = () => {
+          if (scheduledFrame !== undefined) return;
 
-      const setActiveLink = (activeLink: HTMLAnchorElement) => {
-        for (const link of links) {
-          const isActive = link === activeLink;
-          link.toggleAttribute('data-active', isActive);
-
-          if (isActive) {
-            link.setAttribute('aria-current', 'location');
-          } else {
-            link.removeAttribute('aria-current');
-          }
-        }
-      };
-
-      const updateActiveLink = () => {
-        const readingLine = Math.min(window.innerHeight * 0.3, 160);
-        let activeEntry = entries[0];
+          scheduledFrame = window.requestAnimationFrame(() => {
+            updateActiveLink();
+            scheduledFrame = undefined;
+          });
+        };
 
         for (const entry of entries) {
-          if (entry.heading.getBoundingClientRect().top <= readingLine) {
-            activeEntry = entry;
-          } else {
-            break;
-          }
+          entry.link.addEventListener(
+            'click',
+            () => setActiveLink(entry.link),
+            { signal },
+          );
         }
 
-        setActiveLink(activeEntry.link);
-      };
-
-      let scheduledFrame: number | undefined;
-      const scheduleUpdate = () => {
-        if (scheduledFrame !== undefined) return;
-
-        scheduledFrame = window.requestAnimationFrame(() => {
-          updateActiveLink();
-          scheduledFrame = undefined;
+        window.addEventListener('scroll', scheduleUpdate, {
+          passive: true,
+          signal,
         });
-      };
+        window.addEventListener('resize', scheduleUpdate, { signal });
+        scheduleUpdate();
 
-      for (const entry of entries) {
-        entry.link.addEventListener('click', () => setActiveLink(entry.link));
-      }
+        if (scheduledFrame !== undefined) {
+          tableOfContentsFrames.push(scheduledFrame);
+        }
+      });
+  };
 
-      window.addEventListener('scroll', scheduleUpdate, { passive: true });
-      window.addEventListener('resize', scheduleUpdate);
-      scheduleUpdate();
-    });
+  document.addEventListener('astro:page-load', initializeTableOfContents);
 </script>

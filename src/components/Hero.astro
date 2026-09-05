@@ -1,17 +1,202 @@
-<section
-  class="mx-auto flex max-w-5xl flex-col items-center px-6 py-24 text-center"
->
-  <h1 class="home-title text-6xl font-[750] tracking-tight">Alex Ye Lab</h1>
+<section class="home-hero">
+  <div class="home-hero-copy">
+    <p class="home-kicker">
+      <span class="home-status-dot" aria-hidden="true"></span>
+      Personal AI Lab
+    </p>
 
-  <p class="mt-6 max-w-2xl text-xl text-ink-muted">
-    Alex Ye的个人网站
-    <br />
-    AI · LLM · 多模态 · 软件工程
-  </p>
+    <h1 class="home-title">Alex Ye Lab</h1>
 
-  <div class="mt-10 flex gap-4">
-    <a href="/projects" class="button-primary"> 项目 </a>
+    <p class="home-intro">Alex Ye 的个人 Blog</p>
 
-    <a href="/blog" class="button-secondary"> 博客 </a>
+    <div class="home-actions">
+      <a href="/projects" class="home-action home-action--primary">
+        <span>项目</span>
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+          <path
+            d="M4 10h11m-4-4 4 4-4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+
+      <a href="/blog" class="home-action home-action--secondary">
+        <span>博客</span>
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+          <path
+            d="M4 10h11m-4-4 4 4-4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </a>
+    </div>
   </div>
 </section>
+
+<style>
+  .home-hero {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    min-height: calc(100svh - 5rem);
+    align-items: flex-start;
+    justify-content: center;
+    padding: clamp(5.5rem, 13vh, 9rem) 1.5rem 7rem;
+    text-align: center;
+  }
+
+  .home-hero-copy {
+    width: min(100%, 54rem);
+  }
+
+  .home-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: rgb(151 181 169 / 84%);
+    font-family: var(--site-font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .home-status-dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: #72ddb1;
+    box-shadow: 0 0 0.8rem rgb(98 222 173 / 72%);
+    animation: home-status-pulse 3s ease-in-out infinite;
+  }
+
+  .home-title {
+    margin-top: 1.25rem;
+    color: #f1faf6;
+    font-size: clamp(3.4rem, 8vw, 7.25rem);
+    font-weight: 750;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    text-shadow: 0 1.5rem 4rem rgb(0 0 0 / 38%);
+  }
+
+  .home-intro {
+    margin: 1.75rem auto 0;
+    color: rgb(185 204 196 / 78%);
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    letter-spacing: 0.015em;
+  }
+
+  .home-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2.25rem;
+  }
+
+  .home-action {
+    display: inline-flex;
+    min-width: 7.25rem;
+    min-height: 2.9rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid transparent;
+    border-radius: var(--site-radius-control);
+    font-size: 0.95rem;
+    font-weight: 550;
+    transition:
+      color 180ms var(--site-ease-standard),
+      background-color 180ms var(--site-ease-standard),
+      border-color 180ms var(--site-ease-standard),
+      transform 180ms var(--site-ease-standard),
+      box-shadow 180ms var(--site-ease-standard);
+  }
+
+  .home-action svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 180ms var(--site-ease-standard);
+  }
+
+  .home-action--primary {
+    background: #69d5a8;
+    box-shadow: 0 0.75rem 2.2rem rgb(44 170 120 / 18%);
+    color: #06120d;
+  }
+
+  .home-action--secondary {
+    border-color: rgb(159 208 188 / 20%);
+    background: rgb(14 31 25 / 66%);
+    color: #dcebe4;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .home-action:hover {
+      transform: translateY(-2px);
+    }
+
+    .home-action:hover svg {
+      transform: translateX(0.18rem);
+    }
+
+    .home-action--primary:hover {
+      background: #82e2ba;
+      box-shadow: 0 1rem 2.8rem rgb(44 170 120 / 26%);
+    }
+
+    .home-action--secondary:hover {
+      border-color: rgb(133 220 185 / 38%);
+      background: rgb(24 49 40 / 78%);
+      color: #f3fbf7;
+    }
+  }
+
+  @keyframes home-status-pulse {
+    0%,
+    100% {
+      opacity: 0.56;
+      transform: scale(0.84);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .home-hero {
+      min-height: 42rem;
+      padding-top: clamp(4.5rem, 12vh, 7rem);
+    }
+
+    .home-title {
+      font-size: clamp(3.25rem, 17vw, 5rem);
+    }
+
+    .home-intro {
+      max-width: 20rem;
+      line-height: 1.75;
+    }
+
+    .home-actions {
+      margin-top: 1.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-status-dot {
+      animation: none;
+    }
+
+    .home-action,
+    .home-action svg {
+      transition: none;
+    }
+  }
+</style>

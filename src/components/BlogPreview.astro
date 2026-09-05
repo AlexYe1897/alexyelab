@@ -15,19 +15,42 @@ const latestPosts = posts
     (a, b) =>
       new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
   )
-  .slice(0, 2);
+  .slice(0, 1);
 ---
 
-<section>
+<section class="home-preview-panel">
   <div class="flex items-center justify-between">
-    <h2 class="text-3xl weight-display">最新文章</h2>
+    <h2 class="flex items-center gap-2.5 text-xl weight-display">
+      <span class="home-preview-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path
+            d="M5 3.75h7.5L15 6.3v9.95H5V3.75Z"
+            stroke="currentColor"
+            stroke-width="1.35"
+            stroke-linejoin="round"></path>
+          <path
+            d="M12.4 3.9v2.6h2.45M7.6 9h4.8M7.6 12h4.8"
+            stroke="currentColor"
+            stroke-width="1.35"
+            stroke-linecap="round"></path>
+        </svg>
+      </span>
+      最新文章
+    </h2>
 
-    <a href="/blog" class="text-sm text-ink-muted hover:text-accent">
-      查看全部 →
+    <a href="/blog" class="home-preview-link" aria-label="查看全部文章">
+      <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+        <path
+          d="M4 10h11m-4-4 4 4-4 4"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
     </a>
   </div>
 
-  <div class="mt-6 grid gap-6">
+  <div class="mt-4 grid">
     {
       latestPosts.map((post) => (
         <BlogCard
@@ -38,8 +61,57 @@ const latestPosts = posts
           category={post.data.category}
           slug={post.id}
           words={post.words}
+          variant="home"
         />
       ))
     }
   </div>
 </section>
+
+<style>
+  .home-preview-icon,
+  .home-preview-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(123 205 171 / 16%);
+    border-radius: 0.5rem;
+    background: rgb(18 38 30 / 64%);
+    color: #79d9b1;
+  }
+
+  .home-preview-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .home-preview-icon svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .home-preview-link {
+    width: 2.35rem;
+    height: 2.35rem;
+    color: rgb(173 207 193 / 70%);
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .home-preview-link svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .home-preview-link:hover {
+      border-color: rgb(123 220 180 / 34%);
+      background: rgb(24 54 42 / 74%);
+      color: #9ce8c7;
+      transform: translateX(2px);
+    }
+  }
+</style>

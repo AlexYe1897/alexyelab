@@ -1,157 +1,243 @@
-<div class="home-ambient" aria-hidden="true">
-  <span class="home-orb home-orb--green"></span>
-  <span class="home-orb home-orb--blue"></span>
-  <span class="home-orb home-orb--violet"></span>
-  <span class="home-orb home-orb--yellow"></span>
-  <span class="home-orb home-orb--mint"></span>
+---
+let seed = 1897;
+const random = () => {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+};
+
+const stars = Array.from({ length: 118 }, (_, index) => {
+  const isBright = index % 8 === 0;
+
+  return {
+    x: 2 + random() * 96,
+    y: 2 + random() * 62,
+    size: isBright ? 2 + random() * 1.25 : 0.85 + random() * 1.25,
+    opacity: isBright ? 0.82 + random() * 0.16 : 0.35 + random() * 0.5,
+    duration: 5.5 + random() * 5.5,
+    delay: -random() * 11,
+    pattern: index % 3,
+    isBright,
+  };
+});
+---
+
+<div class="home-space" aria-hidden="true">
+  <img
+    class="home-earth"
+    src="/images/home-earth.webp"
+    width="1672"
+    height="941"
+    alt=""
+    fetchpriority="high"
+    decoding="async"
+  />
+
+  <div class="home-stars">
+    {
+      stars.map((star) => (
+        <span
+          class:list={[
+            'home-star',
+            `home-star--pattern-${star.pattern}`,
+            { 'home-star--bright': star.isBright },
+          ]}
+          style={`--star-x:${star.x.toFixed(2)}%;--star-y:${star.y.toFixed(2)}%;--star-size:${star.size.toFixed(2)}px;--star-opacity:${star.opacity.toFixed(2)};--star-dim:${(star.opacity * 0.18).toFixed(2)};--star-soft:${(star.opacity * 0.52).toFixed(2)};--star-duration:${star.duration.toFixed(2)}s;--star-delay:${star.delay.toFixed(2)}s;`}
+        />
+      ))
+    }
+  </div>
+
+  <div class="home-space-shade"></div>
 </div>
 
 <style>
-  .home-ambient {
-    position: fixed;
+  .home-space {
+    position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     overflow: hidden;
+    background: #020806;
     pointer-events: none;
   }
 
-  .home-orb {
+  .home-earth {
     position: absolute;
-    width: clamp(34rem, 56vw, 66rem);
-    aspect-ratio: 1.18;
-    border-radius: 46% 54% 58% 42% / 52% 44% 56% 48%;
-    filter: blur(clamp(76px, 8vw, 124px));
-    opacity: 0.62;
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
+    bottom: var(--home-earth-y, 0px);
+    left: 50%;
+    z-index: 1;
+    width: max(100%, 70rem);
+    max-width: none;
+    height: auto;
+    opacity: 0.94;
+    transform: translate3d(-50%, 0, 0) scale(var(--home-earth-scale, 1));
+    transform-origin: center bottom;
   }
 
-  .home-orb--green {
-    top: -28rem;
-    left: -22rem;
-    background: rgb(91 195 153 / 42%);
-    animation: home-orbit-green 15s ease-in-out -7s infinite alternate;
+  .home-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
   }
 
-  .home-orb--blue {
-    top: -22rem;
-    right: -24rem;
-    background: rgb(104 185 211 / 37%);
-    animation: home-orbit-blue 18s ease-in-out -13s infinite alternate;
+  .home-star {
+    position: absolute;
+    top: var(--star-y);
+    left: var(--star-x);
+    width: var(--star-size);
+    height: var(--star-size);
+    border-radius: 50%;
+    background: #dff9ee;
+    opacity: var(--star-opacity);
+    box-shadow: 0 0 0.35rem rgb(118 224 182 / 28%);
+    animation-duration: var(--star-duration);
+    animation-timing-function: ease-in-out;
+    animation-delay: var(--star-delay);
+    animation-iteration-count: infinite;
   }
 
-  .home-orb--violet {
-    right: -20rem;
-    bottom: -26rem;
-    background: rgb(158 149 204 / 28%);
-    animation: home-orbit-violet 20s ease-in-out -4s infinite alternate;
+  .home-star--pattern-0 {
+    animation-name: home-star-twinkle-a;
   }
 
-  .home-orb--yellow {
-    bottom: -24rem;
-    left: -22rem;
-    background: rgb(224 216 148 / 27%);
-    animation: home-orbit-yellow 16s ease-in-out -11s infinite alternate;
+  .home-star--pattern-1 {
+    animation-name: home-star-twinkle-b;
   }
 
-  .home-orb--mint {
-    top: 32%;
-    left: 34%;
-    width: clamp(30rem, 48vw, 56rem);
-    opacity: 0.5;
-    background: rgb(112 202 177 / 34%);
-    animation: home-orbit-mint 14s ease-in-out -9s infinite alternate;
+  .home-star--pattern-2 {
+    animation-name: home-star-twinkle-c;
   }
 
-  @keyframes home-orbit-green {
-    0% {
-      transform: translate3d(-4vw, -3vh, 0) scale(1);
-    }
-    32% {
-      transform: translate3d(38vw, 12vh, 0) scale(1.16);
-    }
-    68% {
-      transform: translate3d(18vw, 58vh, 0) scale(0.94);
-    }
+  .home-star--bright {
+    background: #f4fffa;
+    box-shadow:
+      0 0 0.45rem rgb(129 233 193 / 52%),
+      0 0 1rem rgb(67 174 156 / 22%);
+  }
+
+  .home-space-shade {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background:
+      linear-gradient(
+        180deg,
+        rgb(2 8 6 / 0%) 62%,
+        rgb(2 8 6 / 24%) 82%,
+        #020806 100%
+      ),
+      linear-gradient(
+        90deg,
+        rgb(2 8 6 / 18%),
+        transparent 24% 76%,
+        rgb(2 8 6 / 18%)
+      );
+  }
+
+  @keyframes home-star-twinkle-a {
+    0%,
+    18%,
     100% {
-      transform: translate3d(54vw, 38vh, 0) scale(1.08);
+      opacity: var(--star-dim);
+      transform: scale(0.48);
+    }
+
+    25% {
+      opacity: var(--star-opacity);
+      transform: scale(1.24);
+    }
+
+    31% {
+      opacity: var(--star-soft);
+      transform: scale(0.78);
+    }
+
+    38% {
+      opacity: var(--star-opacity);
+      transform: scale(1.08);
+    }
+
+    49% {
+      opacity: var(--star-dim);
+      transform: scale(0.52);
     }
   }
 
-  @keyframes home-orbit-blue {
-    0% {
-      transform: translate3d(3vw, -5vh, 0) scale(1.06);
-    }
-    28% {
-      transform: translate3d(-34vw, 22vh, 0) scale(0.92);
-    }
-    64% {
-      transform: translate3d(-16vw, 62vh, 0) scale(1.14);
-    }
+  @keyframes home-star-twinkle-b {
+    0%,
+    36%,
     100% {
-      transform: translate3d(-52vw, 34vh, 0) scale(1);
+      opacity: var(--star-dim);
+      transform: scale(0.52);
     }
-  }
 
-  @keyframes home-orbit-violet {
-    0% {
-      transform: translate3d(4vw, 5vh, 0) scale(1);
+    45% {
+      opacity: var(--star-opacity);
+      transform: scale(1.2);
     }
-    34% {
-      transform: translate3d(-38vw, -24vh, 0) scale(1.12);
-    }
-    70% {
-      transform: translate3d(-12vw, -62vh, 0) scale(0.94);
-    }
-    100% {
-      transform: translate3d(-50vw, -38vh, 0) scale(1.08);
-    }
-  }
 
-  @keyframes home-orbit-yellow {
-    0% {
-      transform: translate3d(-4vw, 4vh, 0) scale(1.08);
+    52% {
+      opacity: var(--star-soft);
+      transform: scale(0.84);
     }
-    30% {
-      transform: translate3d(32vw, -18vh, 0) scale(0.96);
-    }
-    66% {
-      transform: translate3d(12vw, -56vh, 0) scale(1.12);
-    }
-    100% {
-      transform: translate3d(48vw, -34vh, 0) scale(1);
-    }
-  }
 
-  @keyframes home-orbit-mint {
-    0% {
-      transform: translate3d(-28vw, -18vh, 0) scale(0.88);
+    61% {
+      opacity: var(--star-opacity);
+      transform: scale(1.12);
     }
-    36% {
-      transform: translate3d(24vw, -26vh, 0) scale(1.14);
-    }
+
     72% {
-      transform: translate3d(18vw, 28vh, 0) scale(0.98);
+      opacity: var(--star-dim);
+      transform: scale(0.5);
     }
+  }
+
+  @keyframes home-star-twinkle-c {
+    0%,
+    56%,
     100% {
-      transform: translate3d(-24vw, 24vh, 0) scale(1.08);
+      opacity: var(--star-dim);
+      transform: scale(0.46);
+    }
+
+    65% {
+      opacity: var(--star-opacity);
+      transform: scale(1.26);
+    }
+
+    72% {
+      opacity: var(--star-soft);
+      transform: scale(0.76);
+    }
+
+    80% {
+      opacity: var(--star-opacity);
+      transform: scale(1.08);
+    }
+
+    91% {
+      opacity: var(--star-dim);
+      transform: scale(0.5);
     }
   }
 
   @media (max-width: 767px) {
-    .home-orb {
-      width: 46rem;
-      filter: blur(82px);
-      opacity: 0.54;
+    .home-earth {
+      bottom: -1rem;
+      width: 68rem;
+      opacity: 0.88;
     }
 
-    .home-orb--mint {
+    .home-star:nth-child(4n) {
       display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .home-orb {
+    .home-earth {
+      transform: translate3d(-50%, 0, 0);
+    }
+
+    .home-star {
       animation: none;
     }
   }

@@ -63,26 +63,40 @@ const { wordCount, readingTime } = getReadingStats(post.body);
     tags: post.data.tags,
   }}
 >
-  <div class="mx-auto max-w-6xl px-6 pt-8 pb-12 sm:pt-10">
-    <a href="/blog" class="text-sm text-ink-muted transition hover:text-accent">
-      ← 返回博客
-    </a>
-
-    <article class="mt-6">
+  <div class="detail-page mx-auto max-w-6xl px-6 pt-8 pb-12 sm:pt-10 sm:pb-16">
+    <article>
       <div
         class:list={[
           hasTableOfContents &&
             'lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12',
         ]}
       >
-        <div class="article-paper min-w-0 p-6 sm:p-8">
-          <header class="mb-8">
-            <h1 class="text-4xl weight-display tracking-tight">
+        <div class="article-paper detail-paper min-w-0 p-6 sm:p-8">
+          <header class="detail-header detail-article-header">
+            <a href="/blog" class="detail-back-link" aria-label="返回博客列表">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                class="size-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m15 18-6-6 6-6"
+                ></path>
+              </svg>
+              <span>博客</span>
+            </a>
+
+            <h1 class="mt-6 text-4xl weight-display tracking-tight">
               <DisplayTitleText text={post.data.title} />
             </h1>
 
             <div
-              class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-ink-faint"
+              class="detail-meta mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-ink-faint"
             >
               <span class="whitespace-nowrap">
                 {post.data.category}
@@ -107,7 +121,7 @@ const { wordCount, readingTime } = getReadingStats(post.body);
               </span>
             </div>
 
-            <div class="mt-4 flex gap-2">
+            <div class="detail-tags mt-4 flex flex-wrap gap-2">
               {
                 post.data.tags.map((tag) => (
                   <a
@@ -136,7 +150,7 @@ const { wordCount, readingTime } = getReadingStats(post.body);
                 {previousPost && (
                   <a
                     href={`/blog/${previousPost.id}`}
-                    class="interactive-card p-5"
+                    class="detail-nav-card interactive-card p-5"
                   >
                     <span class="text-sm text-ink-muted">← 上一篇</span>
                     <span class="mt-2 block font-semibold">
@@ -149,7 +163,7 @@ const { wordCount, readingTime } = getReadingStats(post.body);
                   <a
                     href={`/blog/${nextPost.id}`}
                     class:list={[
-                      'interactive-card p-5 text-right',
+                      'detail-nav-card interactive-card p-5 text-right',
                       !previousPost && 'sm:col-start-2',
                     ]}
                   >
@@ -166,7 +180,7 @@ const { wordCount, readingTime } = getReadingStats(post.body);
 
         {
           hasTableOfContents && (
-            <aside class="hidden lg:block">
+            <aside class="detail-toc-column hidden lg:block">
               <div class="sticky top-8">
                 <TableOfContents headings={headings} />
               </div>

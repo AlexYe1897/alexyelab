@@ -6,19 +6,42 @@ const featuredProjects = (
   await getCollection('projects', ({ data }) => !data.draft && data.featured)
 )
   .sort((a, b) => a.data.order - b.data.order)
-  .slice(0, 2);
+  .slice(0, 1);
 ---
 
-<section>
+<section class="home-preview-panel">
   <div class="flex items-center justify-between">
-    <h2 class="text-3xl weight-display">精选项目</h2>
+    <h2 class="flex items-center gap-2.5 text-xl weight-display">
+      <span class="home-preview-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path
+            d="M3.75 6.5h5l1.2 1.5h6.3v7.75H3.75V6.5Z"
+            stroke="currentColor"
+            stroke-width="1.35"
+            stroke-linejoin="round"></path>
+          <path
+            d="M3.75 6.6V4.25h4.1L9.2 6"
+            stroke="currentColor"
+            stroke-width="1.35"
+            stroke-linejoin="round"></path>
+        </svg>
+      </span>
+      最新项目
+    </h2>
 
-    <a href="/projects" class="text-sm text-ink-muted hover:text-accent">
-      查看全部 →
+    <a href="/projects" class="home-preview-link" aria-label="查看全部项目">
+      <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+        <path
+          d="M4 10h11m-4-4 4 4-4 4"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
     </a>
   </div>
 
-  <div class="mt-6 grid gap-6">
+  <div class="mt-4 grid">
     {
       featuredProjects.map((project) => (
         <ProjectCard
@@ -26,8 +49,57 @@ const featuredProjects = (
           title={project.data.title}
           description={project.data.description}
           tags={project.data.tags}
+          variant="home"
         />
       ))
     }
   </div>
 </section>
+
+<style>
+  .home-preview-icon,
+  .home-preview-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(123 205 171 / 16%);
+    border-radius: 0.5rem;
+    background: rgb(18 38 30 / 64%);
+    color: #79d9b1;
+  }
+
+  .home-preview-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .home-preview-icon svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .home-preview-link {
+    width: 2.35rem;
+    height: 2.35rem;
+    color: rgb(173 207 193 / 70%);
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .home-preview-link svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .home-preview-link:hover {
+      border-color: rgb(123 220 180 / 34%);
+      background: rgb(24 54 42 / 74%);
+      color: #9ce8c7;
+      transform: translateX(2px);
+    }
+  }
+</style>

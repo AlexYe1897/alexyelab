@@ -166,78 +166,108 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
 </style>
 
 <script>
-  document
-    .querySelectorAll<HTMLElement>('[data-expandable-search]')
-    .forEach((control) => {
-      const input = control.querySelector<HTMLInputElement>('.search-input');
-      const toggle = control.querySelector<HTMLButtonElement>(
-        '[data-search-toggle]',
-      );
+  let expandableSearchController: AbortController | undefined;
 
-      if (!input || !toggle) return;
+  const initializeExpandableSearch = () => {
+    expandableSearchController?.abort();
+    expandableSearchController = new AbortController();
+    const { signal } = expandableSearchController;
 
-      const label = input.labels?.[0]?.textContent?.trim() || '搜索';
-      const queryParam = control.dataset.queryParam || 'q';
-
-      const setOpen = (open: boolean) => {
-        control.dataset.state = open ? 'open' : 'closed';
-        toggle.setAttribute('aria-expanded', String(open));
-        toggle.setAttribute(
-          'aria-label',
-          open ? `关闭${label}` : `展开${label}`,
+    document
+      .querySelectorAll<HTMLElement>('[data-expandable-search]')
+      .forEach((control) => {
+        const input = control.querySelector<HTMLInputElement>('.search-input');
+        const toggle = control.querySelector<HTMLButtonElement>(
+          '[data-search-toggle]',
         );
-      };
 
-      const initialQuery = new URL(window.location.href).searchParams.get(
-        queryParam,
-      );
-      if (initialQuery && !input.value) input.value = initialQuery;
-      setOpen(Boolean(input.value));
+        if (!input || !toggle) return;
 
-      input.addEventListener('focus', () => setOpen(true));
-      input.addEventListener('input', () => {
-        if (input.value) setOpen(true);
-      });
+        const label = input.labels?.[0]?.textContent?.trim() || '搜索';
+        const queryParam = control.dataset.queryParam || 'q';
 
-      toggle.addEventListener('click', (event) => {
-        const isOpen = control.dataset.state === 'open';
+        const setOpen = (open: boolean) => {
+          control.dataset.state = open ? 'open' : 'closed';
+          toggle.setAttribute('aria-expanded', String(open));
+          toggle.setAttribute(
+            'aria-label',
+            open ? `关闭${label}` : `展开${label}`,
+          );
+        };
 
-        if (isOpen) {
-          if (input.value) {
-            input.value = '';
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-          setOpen(false);
-          if (event.detail > 0) toggle.blur();
-        } else {
-          setOpen(true);
-          input.focus();
-        }
-      });
+        const initialQuery = new URL(window.location.href).searchParams.get(
+          queryParam,
+        );
+        if (initialQuery && !input.value) input.value = initialQuery;
+        setOpen(Boolean(input.value));
 
-      input.addEventListener('keydown', (event) => {
-        if (event.key !== 'Escape') return;
+        input.addEventListener('focus', () => setOpen(true), { signal });
+        input.addEventListener(
+          'input',
+          () => {
+            if (input.value) setOpen(true);
+          },
+          { signal },
+        );
 
-        if (input.value) {
-          input.value = '';
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-        setOpen(false);
-        toggle.focus();
-      });
+        toggle.addEventListener(
+          'click',
+          (event) => {
+            const isOpen = control.dataset.state === 'open';
 
-      control.addEventListener('focusout', () => {
-        window.setTimeout(() => {
-          if (!control.contains(document.activeElement) && !input.value) {
+            if (isOpen) {
+              if (input.value) {
+                input.value = '';
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+              setOpen(false);
+              if (event.detail > 0) toggle.blur();
+            } else {
+              setOpen(true);
+              input.focus();
+            }
+          },
+          { signal },
+        );
+
+        input.addEventListener(
+          'keydown',
+          (event) => {
+            if (event.key !== 'Escape') return;
+
+            if (input.value) {
+              input.value = '';
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
             setOpen(false);
-          }
-        });
-      });
+            toggle.focus();
+          },
+          { signal },
+        );
 
-      document.addEventListener('pointerdown', (event) => {
-        if (!control.contains(event.target as Node) && !input.value) {
-          setOpen(false);
-        }
+        control.addEventListener(
+          'focusout',
+          () => {
+            window.setTimeout(() => {
+              if (!control.contains(document.activeElement) && !input.value) {
+                setOpen(false);
+              }
+            });
+          },
+          { signal },
+        );
+
+        document.addEventListener(
+          'pointerdown',
+          (event) => {
+            if (!control.contains(event.target as Node) && !input.value) {
+              setOpen(false);
+            }
+          },
+          { signal },
+        );
       });
-    });
+  };
+
+  document.addEventListener('astro:page-load', initializeExpandableSearch);
 </script>
