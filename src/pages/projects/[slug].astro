@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import TableOfContents from '../../components/TableOfContents.astro';
 import CodeBlockEnhancer from '../../components/CodeBlockEnhancer.astro';
 import DisplayTitleText from '../../components/DisplayTitleText.astro';
+import BackToTop from '../../components/BackToTop.astro';
 import Layout from '../../layouts/Layout.astro';
 
 export async function getStaticPaths() {
@@ -131,7 +132,7 @@ const statusLabels = {
         {
           hasTableOfContents && (
             <aside class="detail-toc-column hidden lg:block">
-              <div class="sticky top-8">
+              <div class="sticky top-28">
                 <TableOfContents headings={headings} label="项目目录" />
               </div>
             </aside>
@@ -140,4 +141,5 @@ const statusLabels = {
       </div>
     </article>
   </div>
+  <BackToTop />
 </Layout>

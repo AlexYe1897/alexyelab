@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import TableOfContents from '../../components/TableOfContents.astro';
 import CodeBlockEnhancer from '../../components/CodeBlockEnhancer.astro';
 import DisplayTitleText from '../../components/DisplayTitleText.astro';
+import BackToTop from '../../components/BackToTop.astro';
 import { getReadingStats } from '../../utils/reading';
 import { toTagSlug } from '../../utils/tags';
 
@@ -181,7 +182,7 @@ const { wordCount, readingTime } = getReadingStats(post.body);
         {
           hasTableOfContents && (
             <aside class="detail-toc-column hidden lg:block">
-              <div class="sticky top-8">
+              <div class="sticky top-28">
                 <TableOfContents headings={headings} />
               </div>
             </aside>
@@ -190,4 +191,5 @@ const { wordCount, readingTime } = getReadingStats(post.body);
       </div>
     </article>
   </div>
+  <BackToTop />
 </Layout>

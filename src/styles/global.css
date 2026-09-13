@@ -543,16 +543,10 @@
   }
 
   .detail-toc {
-    max-height: calc(100svh - 4rem);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-color: color-mix(
-        in srgb,
-        var(--site-line-strong) 48%,
-        transparent
-      )
-      transparent;
-    scrollbar-width: thin;
+    display: flex;
+    max-height: min(32rem, calc(100svh - 11rem));
+    flex-direction: column;
+    overflow: hidden;
     border-color: transparent;
     background: color-mix(in srgb, var(--site-surface) 74%, transparent);
     box-shadow: 0 12px 34px rgb(44 75 62 / 6%);

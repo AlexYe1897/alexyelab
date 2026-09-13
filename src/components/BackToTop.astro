@@ -1,0 +1,160 @@
+<button
+  data-back-to-top
+  type="button"
+  class="back-to-top"
+  aria-label="返回顶部"
+  aria-hidden="true"
+  title="返回顶部"
+  tabindex="-1"
+>
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+    <path
+      d="m6.5 14.5 5.5-5.5 5.5 5.5"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+  </svg>
+</button>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    right: max(1.25rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    z-index: 30;
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--site-line) 58%, transparent);
+    border-radius: var(--site-radius-control);
+    background: color-mix(in srgb, var(--site-surface) 82%, transparent);
+    box-shadow: 0 0.75rem 2rem rgb(22 45 36 / 10%);
+    color: var(--site-ink-muted);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.5rem);
+    visibility: hidden;
+    -webkit-backdrop-filter: blur(12px) saturate(108%);
+    backdrop-filter: blur(12px) saturate(108%);
+    transition:
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      color var(--site-motion-fast) var(--site-ease-standard),
+      background-color var(--site-motion-fast) var(--site-ease-standard),
+      border-color var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-fast) var(--site-ease-standard),
+      visibility 0s linear var(--site-motion-fast);
+  }
+
+  .back-to-top[data-visible] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .back-to-top svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .back-to-top:hover {
+      border-color: color-mix(
+        in srgb,
+        var(--site-accent) 34%,
+        transparent
+      );
+      background: color-mix(
+        in srgb,
+        var(--site-accent-soft) 76%,
+        var(--site-surface)
+      );
+      color: var(--site-accent);
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (max-width: 39.999rem) {
+    .back-to-top {
+      right: max(1rem, env(safe-area-inset-right));
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  let backToTopController: AbortController | undefined;
+  let backToTopFrame: number | undefined;
+
+  const initializeBackToTop = () => {
+    backToTopController?.abort();
+
+    if (backToTopFrame !== undefined) {
+      window.cancelAnimationFrame(backToTopFrame);
+      backToTopFrame = undefined;
+    }
+
+    const buttons = document.querySelectorAll<HTMLButtonElement>(
+      '[data-back-to-top]',
+    );
+    if (buttons.length === 0) return;
+
+    backToTopController = new AbortController();
+    const { signal } = backToTopController;
+
+    const updateVisibility = () => {
+      const isVisible = window.scrollY > 600;
+
+      for (const button of buttons) {
+        button.toggleAttribute('data-visible', isVisible);
+        button.setAttribute('aria-hidden', String(!isVisible));
+        button.tabIndex = isVisible ? 0 : -1;
+      }
+    };
+
+    const scheduleVisibilityUpdate = () => {
+      if (backToTopFrame !== undefined) return;
+
+      backToTopFrame = window.requestAnimationFrame(() => {
+        updateVisibility();
+        backToTopFrame = undefined;
+      });
+    };
+
+    for (const button of buttons) {
+      button.addEventListener(
+        'click',
+        () => {
+          const prefersReducedMotion = window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+          ).matches;
+
+          window.scrollTo({
+            top: 0,
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          });
+        },
+        { signal },
+      );
+    }
+
+    window.addEventListener('scroll', scheduleVisibilityUpdate, {
+      passive: true,
+      signal,
+    });
+    updateVisibility();
+  };
+
+  document.addEventListener('astro:page-load', initializeBackToTop);
+</script>

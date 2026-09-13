@@ -45,9 +45,9 @@ const tableOfContents = headings
       aria-label={label}
       class="detail-toc surface-card p-4"
     >
-      <h2 class="mb-3 weight-heading">目录</h2>
+      <h2 class="mb-3 shrink-0 weight-heading">目录</h2>
 
-      <ul class="space-y-2 text-sm">
+      <ul data-toc-list class="toc-list min-h-0 space-y-2 pr-1 text-sm">
         {tableOfContents.map((heading) => (
           <li class={heading.depth === 3 ? 'ml-4' : undefined}>
             <a
@@ -101,6 +101,18 @@ const tableOfContents = headings
     color: var(--site-accent);
   }
 
+  .toc-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--site-line-strong) 48%,
+        transparent
+      )
+      transparent;
+    scrollbar-width: thin;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .toc-link::before {
       transition: none;
@@ -149,6 +161,36 @@ const tableOfContents = headings
 
         if (entries.length === 0) return;
 
+        const tocList = tableOfContents.querySelector<HTMLElement>(
+          '[data-toc-list]',
+        );
+        let currentActiveLink: HTMLAnchorElement | undefined;
+
+        const revealActiveLink = (activeLink: HTMLAnchorElement) => {
+          if (!tocList) return;
+
+          const listRect = tocList.getBoundingClientRect();
+          const linkRect = activeLink.getBoundingClientRect();
+          const isOutsideView =
+            linkRect.top < listRect.top || linkRect.bottom > listRect.bottom;
+
+          if (!isOutsideView) return;
+
+          const targetTop =
+            tocList.scrollTop +
+            (linkRect.top - listRect.top) -
+            tocList.clientHeight / 2 +
+            linkRect.height / 2;
+
+          tocList.scrollTo({
+            top: Math.max(0, targetTop),
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)')
+              .matches
+              ? 'auto'
+              : 'smooth',
+          });
+        };
+
         const setActiveLink = (activeLink: HTMLAnchorElement) => {
           for (const link of links) {
             const isActive = link === activeLink;
@@ -159,6 +201,11 @@ const tableOfContents = headings
             } else {
               link.removeAttribute('aria-current');
             }
+          }
+
+          if (currentActiveLink !== activeLink) {
+            currentActiveLink = activeLink;
+            revealActiveLink(activeLink);
           }
         };
 
@@ -190,7 +237,26 @@ const tableOfContents = headings
         for (const entry of entries) {
           entry.link.addEventListener(
             'click',
-            () => setActiveLink(entry.link),
+            (event) => {
+              const isModifiedClick =
+                event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
+              const prefersReducedMotion = window.matchMedia(
+                '(prefers-reduced-motion: reduce)',
+              ).matches;
+
+              if (isModifiedClick || prefersReducedMotion) {
+                setActiveLink(entry.link);
+                return;
+              }
+
+              event.preventDefault();
+              setActiveLink(entry.link);
+              entry.heading.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+              });
+              window.history.pushState(null, '', entry.link.hash);
+            },
             { signal },
           );
         }
