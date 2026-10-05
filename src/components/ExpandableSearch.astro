@@ -50,14 +50,17 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
   </button>
 
   <div class="search-field min-w-0 flex-1">
-    <label class="sr-only" for={id}>{label}</label>
-    <input
-      id={id}
-      type="search"
-      placeholder={placeholder}
-      autocomplete="off"
-      class="search-input h-10 w-full min-w-0 bg-transparent pr-3 text-sm text-ink placeholder:text-ink-faint focus-visible:outline-none"
-    />
+    <div class="search-field-inner min-w-0">
+      <label class="sr-only" for={id}>{label}</label>
+      <input
+        id={id}
+        type="search"
+        placeholder={placeholder}
+        autocomplete="off"
+        tabindex="-1"
+        class="search-input h-10 w-full min-w-0 bg-transparent pr-3 text-sm text-ink placeholder:text-ink-faint focus-visible:outline-none"
+      />
+    </div>
   </div>
 </div>
 
@@ -71,9 +74,9 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     transition:
-      width 200ms ease,
-      flex-basis 200ms ease,
-      background-color 150ms ease;
+      width var(--site-motion-base) var(--site-ease-standard),
+      flex-basis var(--site-motion-base) var(--site-ease-standard),
+      background-color var(--site-motion-fast) var(--site-ease-standard);
   }
 
   .search-control[data-state='open'] {
@@ -92,24 +95,28 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
 
   .search-field {
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     transform: translateX(-0.25rem);
     transition:
-      opacity 150ms ease,
-      transform 180ms ease;
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-base) var(--site-ease-standard),
+      visibility 0s linear var(--site-motion-base);
   }
 
   .search-control[data-state='open'] .search-field {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
     transform: translateX(0);
+    transition-delay: 0s;
   }
 
   .search-icon,
   .search-close-icon {
     transition:
-      opacity 150ms ease,
-      transform 180ms ease;
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-base) var(--site-ease-standard);
   }
 
   .search-close-icon {
@@ -134,7 +141,7 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
     }
   }
 
-  @media (hover: hover) and (pointer: fine) {
+  @media (min-width: 40rem) and (hover: hover) and (pointer: fine) {
     .search-control:hover {
       width: 12rem;
       flex-basis: 12rem;
@@ -150,8 +157,57 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
 
     .search-control:hover .search-field {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
       transform: translateX(0);
+      transition-delay: 0s;
+    }
+  }
+
+  @media (max-width: 39.999rem) {
+    .search-control {
+      display: contents;
+    }
+
+    .search-field {
+      display: grid;
+      grid-template-rows: 0fr;
+      grid-row: 2;
+      grid-column: 1 / -1;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: var(--site-radius-control);
+      transform: translateY(-0.25rem);
+      transition:
+        grid-template-rows var(--site-motion-base) var(--site-ease-standard),
+        opacity var(--site-motion-fast) var(--site-ease-standard),
+        transform var(--site-motion-base) var(--site-ease-standard),
+        visibility 0s linear var(--site-motion-base);
+    }
+
+    .search-field-inner {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .search-input {
+      height: 2.75rem;
+      padding-inline: 0.875rem;
+      border: 1px solid transparent;
+      border-radius: var(--site-radius-control);
+      background: color-mix(in srgb, var(--site-surface) 68%, transparent);
+      -webkit-backdrop-filter: blur(10px) saturate(108%);
+      backdrop-filter: blur(10px) saturate(108%);
+    }
+
+    .search-field:focus-within .search-input {
+      outline: 2px solid color-mix(in srgb, var(--site-focus) 70%, transparent);
+      outline-offset: -2px;
+    }
+
+    .search-control[data-state='open'] .search-field {
+      grid-template-rows: 1fr;
+      transform: translateY(0);
     }
   }
 
@@ -180,6 +236,7 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
         const toggle = control.querySelector<HTMLButtonElement>(
           '[data-search-toggle]',
         );
+        const field = control.querySelector<HTMLElement>('.search-field');
 
         if (!input || !toggle) return;
 
@@ -187,7 +244,12 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
         const queryParam = control.dataset.queryParam || 'q';
 
         const setOpen = (open: boolean) => {
+          if (!open && document.activeElement === input) {
+            toggle.focus({ preventScroll: true });
+          }
           control.dataset.state = open ? 'open' : 'closed';
+          input.tabIndex = open ? 0 : -1;
+          field?.setAttribute('aria-hidden', String(!open));
           toggle.setAttribute('aria-expanded', String(open));
           toggle.setAttribute(
             'aria-label',
@@ -224,7 +286,7 @@ const { id, label, placeholder, queryParam = 'q' } = Astro.props;
               if (event.detail > 0) toggle.blur();
             } else {
               setOpen(true);
-              input.focus();
+              input.focus({ preventScroll: true });
             }
           },
           { signal },

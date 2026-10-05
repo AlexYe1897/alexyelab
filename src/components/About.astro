@@ -153,7 +153,7 @@ const aboutNavigation = [
           是我的个人技术博客与学习记录网站，用来整理学习笔记、项目实践，以及在探索过程中遇到的问题和阶段性理解。
         </p>
         <p>
-          网站内容会随着学习进度持续更新。这里更看重真实的记录和可回顾的过程，而其他非商业用途或包装。
+          网站内容会随着学习进度持续更新。这里更看重真实的记录和可回顾的过程，而不是商业用途或包装。
         </p>
       </div>
     </section>
@@ -244,6 +244,8 @@ const aboutNavigation = [
 
   <nav
     aria-label="关于页面快速导航"
+    aria-hidden="true"
+    inert
     class="about-quick-nav fixed top-1/2 z-10 hidden -translate-y-1/2 xl:block"
     data-about-nav
   >
@@ -266,137 +268,265 @@ const aboutNavigation = [
 </section>
 
 <script>
-  const intro = document.querySelector<HTMLElement>('[data-about-intro]');
-  const navigation = document.querySelector<HTMLElement>('[data-about-nav]');
-  const sections = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-about-section]')
-  );
-  const toneSections = intro ? [intro, ...sections] : sections;
-  const links = Array.from(
-    document.querySelectorAll<HTMLAnchorElement>('[data-about-link]')
-  );
+  let aboutController: AbortController | undefined;
+  let introObserver: IntersectionObserver | undefined;
+  let navigationFrame: number | undefined;
+  let toneFrame: number | undefined;
 
-  if (intro && navigation) {
-    const introObserver = new IntersectionObserver(([entry]) => {
-      navigation.classList.toggle('is-visible', !entry.isIntersecting);
-    });
+  const cleanupAbout = () => {
+    aboutController?.abort();
+    aboutController = undefined;
+    introObserver?.disconnect();
+    introObserver = undefined;
 
-    introObserver.observe(intro);
-  }
-
-  const setNavigationSection = (section: HTMLElement) => {
-    for (const link of links) {
-      const isCurrent = link.dataset.aboutLink === section.id;
-      if (isCurrent) {
-        link.setAttribute('aria-current', 'location');
-      } else {
-        link.removeAttribute('aria-current');
-      }
+    if (navigationFrame !== undefined) {
+      window.cancelAnimationFrame(navigationFrame);
+      navigationFrame = undefined;
+    }
+    if (toneFrame !== undefined) {
+      window.cancelAnimationFrame(toneFrame);
+      toneFrame = undefined;
     }
   };
 
-  if (sections.length > 0 && links.length > 0) {
-    const sectionObserver = new IntersectionObserver(
-      (entries) => {
-        const activeSection = entries.find((entry) => entry.isIntersecting);
-        if (activeSection?.target instanceof HTMLElement) {
-          setNavigationSection(activeSection.target);
-        }
-      },
-      { rootMargin: '-20% 0px -65%' }
+  const initializeAbout = () => {
+    cleanupAbout();
+
+    const intro = document.querySelector<HTMLElement>('[data-about-intro]');
+    if (!intro) return;
+
+    aboutController = new AbortController();
+    const { signal } = aboutController;
+    const navigation = document.querySelector<HTMLElement>('[data-about-nav]');
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-about-section]'),
+    );
+    const toneSections = intro ? [intro, ...sections] : sections;
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('[data-about-link]'),
     );
 
-    sections.forEach((section) => sectionObserver.observe(section));
-  }
+    if (intro && navigation) {
+      const setNavigationVisible = (visible: boolean) => {
+        if (!visible && navigation.contains(document.activeElement)) {
+          document
+            .querySelector<HTMLElement>('#main-content')
+            ?.focus({ preventScroll: true });
+        }
 
-  const setBackgroundTone = (section: HTMLElement) => {
-    const tone = section.dataset.aboutTone ?? 'intro';
-    document.body.dataset.aboutTone = tone;
+        navigation.toggleAttribute('inert', !visible);
+        navigation.setAttribute('aria-hidden', String(!visible));
+        navigation.classList.toggle('is-visible', visible);
+      };
+
+      const introRect = intro.getBoundingClientRect();
+      setNavigationVisible(
+        introRect.bottom <= 0 || introRect.top >= window.innerHeight,
+      );
+      introObserver = new IntersectionObserver(([entry]) => {
+        setNavigationVisible(!entry.isIntersecting);
+      });
+
+      introObserver.observe(intro);
+    }
+
+    const setNavigationSection = (section: HTMLElement) => {
+      for (const link of links) {
+        const isCurrent = link.dataset.aboutLink === section.id;
+        if (isCurrent) {
+          link.setAttribute('aria-current', 'location');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      }
+    };
+
+    if (sections.length > 0 && links.length > 0) {
+      const getHashSection = () => {
+        const hash = window.location.hash.slice(1);
+        if (!hash) return undefined;
+
+        let sectionId = hash;
+        try {
+          sectionId = decodeURIComponent(hash);
+        } catch {
+          // Keep the original hash if it is already decoded.
+        }
+
+        return sections.find((section) => section.id === sectionId);
+      };
+
+      const updateActiveNavigation = () => {
+        navigationFrame = undefined;
+
+        const hashSection = getHashSection();
+        if (hashSection) {
+          const hashSectionRect = hashSection.getBoundingClientRect();
+          const isHashSectionVisible =
+            hashSectionRect.bottom > 0 &&
+            hashSectionRect.top < window.innerHeight;
+
+          if (isHashSectionVisible) {
+            setNavigationSection(hashSection);
+            return;
+          }
+        }
+
+        const activationLine = Math.min(window.innerHeight * 0.2, 160);
+        let activeSection = sections[0];
+
+        for (const section of sections) {
+          if (section.getBoundingClientRect().top <= activationLine) {
+            activeSection = section;
+          } else {
+            break;
+          }
+        }
+
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const isAtPageEnd = Math.max(0, maxScroll - window.scrollY) <= 1;
+
+        if (isAtPageEnd) {
+          activeSection = sections[sections.length - 1];
+        }
+
+        setNavigationSection(activeSection);
+      };
+
+      const scheduleNavigationUpdate = () => {
+        if (navigationFrame !== undefined) return;
+
+        navigationFrame = window.requestAnimationFrame(updateActiveNavigation);
+      };
+
+      for (const link of links) {
+        link.addEventListener(
+          'click',
+          () => {
+            const targetSection = sections.find(
+              (section) => section.id === link.dataset.aboutLink,
+            );
+
+            if (targetSection) setNavigationSection(targetSection);
+          },
+          { signal },
+        );
+      }
+
+      window.addEventListener('hashchange', scheduleNavigationUpdate, {
+        signal,
+      });
+      window.addEventListener('scroll', scheduleNavigationUpdate, {
+        passive: true,
+        signal,
+      });
+      window.addEventListener('resize', scheduleNavigationUpdate, { signal });
+      updateActiveNavigation();
+    }
+
+    const setBackgroundTone = (section: HTMLElement) => {
+      const tone = section.dataset.aboutTone ?? 'intro';
+      document.body.dataset.aboutTone = tone;
+    };
+
+    if (intro) {
+      setBackgroundTone(intro);
+    }
+
+    if (toneSections.length > 0) {
+      const updateActiveTone = () => {
+        toneFrame = undefined;
+
+        const activationLine = window.innerHeight * 0.3;
+        let activeSection = toneSections[0];
+        const firstContentSection = sections[0];
+
+        if (
+          firstContentSection &&
+          firstContentSection.getBoundingClientRect().top <= activationLine
+        ) {
+          activeSection = sections.reduce((closestSection, section) => {
+            const closestRect = closestSection.getBoundingClientRect();
+            const sectionRect = section.getBoundingClientRect();
+            const closestDistance = Math.abs(
+              closestRect.top + closestRect.height / 2 - activationLine,
+            );
+            const sectionDistance = Math.abs(
+              sectionRect.top + sectionRect.height / 2 - activationLine,
+            );
+
+            return sectionDistance < closestDistance ? section : closestSection;
+          }, firstContentSection);
+        }
+
+        const contactSection = sections.find(
+          (section) => section.id === 'contact',
+        );
+        const timelineSection = sections.find(
+          (section) => section.id === 'timeline',
+        );
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const remainingScroll = Math.max(0, maxScroll - window.scrollY);
+        const contactRange = Math.min(
+          520,
+          Math.max(320, window.innerHeight * 0.45),
+        );
+        const timelineRange = Math.min(
+          160,
+          Math.max(96, window.innerHeight * 0.12),
+        );
+
+        if (contactSection && remainingScroll <= contactRange) {
+          activeSection = contactSection;
+        }
+
+        if (timelineSection && remainingScroll <= timelineRange) {
+          activeSection = timelineSection;
+        }
+
+        setBackgroundTone(activeSection);
+      };
+
+      const scheduleToneUpdate = () => {
+        if (toneFrame !== undefined) return;
+        toneFrame = window.requestAnimationFrame(updateActiveTone);
+      };
+
+      window.addEventListener('scroll', scheduleToneUpdate, {
+        passive: true,
+        signal,
+      });
+      window.addEventListener('resize', scheduleToneUpdate, { signal });
+      updateActiveTone();
+    }
   };
 
-  if (intro) {
-    setBackgroundTone(intro);
-  }
-
-  if (toneSections.length > 0) {
-    let updateFrame: number | undefined;
-
-    const updateActiveTone = () => {
-      updateFrame = undefined;
-
-      const activationLine = window.innerHeight * 0.3;
-      let activeSection = toneSections[0];
-      const firstContentSection = sections[0];
-
-      if (
-        firstContentSection &&
-        firstContentSection.getBoundingClientRect().top <= activationLine
-      ) {
-        activeSection = sections.reduce((closestSection, section) => {
-          const closestRect = closestSection.getBoundingClientRect();
-          const sectionRect = section.getBoundingClientRect();
-          const closestDistance = Math.abs(
-            closestRect.top + closestRect.height / 2 - activationLine
-          );
-          const sectionDistance = Math.abs(
-            sectionRect.top + sectionRect.height / 2 - activationLine
-          );
-
-          return sectionDistance < closestDistance ? section : closestSection;
-        }, firstContentSection);
-      }
-
-      const contactSection = sections.find(
-        (section) => section.id === 'contact'
-      );
-      const timelineSection = sections.find(
-        (section) => section.id === 'timeline'
-      );
-      const maxScroll =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const remainingScroll = Math.max(0, maxScroll - window.scrollY);
-      const contactRange = Math.min(
-        520,
-        Math.max(320, window.innerHeight * 0.45)
-      );
-      const timelineRange = Math.min(
-        160,
-        Math.max(96, window.innerHeight * 0.12)
-      );
-
-      if (contactSection && remainingScroll <= contactRange) {
-        activeSection = contactSection;
-      }
-
-      if (timelineSection && remainingScroll <= timelineRange) {
-        activeSection = timelineSection;
-      }
-
-      setBackgroundTone(activeSection);
-    };
-
-    const scheduleToneUpdate = () => {
-      if (updateFrame !== undefined) return;
-      updateFrame = window.requestAnimationFrame(updateActiveTone);
-    };
-
-    window.addEventListener('scroll', scheduleToneUpdate, { passive: true });
-    window.addEventListener('resize', scheduleToneUpdate);
-    scheduleToneUpdate();
-  }
+  document.addEventListener('astro:before-swap', cleanupAbout);
+  document.addEventListener('astro:page-load', initializeAbout);
 </script>
 
 <style>
   .about-quick-nav {
     left: max(1.5rem, calc(50% - 40rem));
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 160ms ease;
+    transition:
+      opacity var(--site-motion-fast) var(--site-ease-in-out),
+      visibility 0s linear var(--site-motion-fast);
   }
 
   .about-quick-nav.is-visible {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition-delay: 0s;
+  }
+
+  .about-quick-link {
+    transition: color var(--site-motion-fast) var(--site-ease-standard);
   }
 
   .about-quick-link[aria-current] {
@@ -425,7 +555,8 @@ const aboutNavigation = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .about-quick-nav {
+    .about-quick-nav,
+    .about-quick-link {
       transition: none;
     }
   }

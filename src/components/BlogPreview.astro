@@ -95,10 +95,10 @@ const latestPosts = posts
     height: 2.35rem;
     color: rgb(173 207 193 / 70%);
     transition:
-      color 180ms ease,
-      border-color 180ms ease,
-      background-color 180ms ease,
-      transform 180ms ease;
+      color var(--site-motion-fast) var(--site-ease-standard),
+      border-color var(--site-motion-fast) var(--site-ease-standard),
+      background-color var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-fast) var(--site-ease-standard);
   }
 
   .home-preview-link svg {
@@ -112,6 +112,16 @@ const latestPosts = posts
       background: rgb(24 54 42 / 74%);
       color: #9ce8c7;
       transform: translateX(2px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-preview-link {
+      transition: none;
+    }
+
+    .home-preview-link:hover {
+      transform: none;
     }
   }
 </style>

@@ -55,6 +55,7 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
             title={project.data.title}
             description={project.data.description}
             tags={project.data.tags}
+            status={project.data.status}
             headingLevel="h2"
           />
         </div>
@@ -112,7 +113,9 @@ const projects = (await getCollection('projects', ({ data }) => !data.draft))
       } else {
         url.searchParams.delete('q');
       }
-      window.history.replaceState({}, '', url);
+      if (url.href !== window.location.href) {
+        window.history.replaceState(window.history.state, '', url);
+      }
     };
 
     const initialQuery = new URL(window.location.href).searchParams.get('q');

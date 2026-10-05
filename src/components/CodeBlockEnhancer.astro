@@ -15,7 +15,7 @@
 
   .code-block-toolbar {
     display: flex;
-    min-height: 2.5rem;
+    min-height: 2.75rem;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
@@ -36,8 +36,11 @@
 
   .code-copy-button {
     display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
     flex-shrink: 0;
     align-items: center;
+    justify-content: center;
     gap: 0;
     padding: 0.375rem;
     border-radius: 0.25rem;
@@ -45,9 +48,9 @@
     font-size: 0.75rem;
     font-weight: 500;
     transition:
-      color 150ms ease,
-      background-color 150ms ease,
-      gap 180ms ease;
+      color var(--site-motion-fast) var(--site-ease-standard),
+      background-color var(--site-motion-fast) var(--site-ease-standard),
+      gap var(--site-motion-base) var(--site-ease-standard);
   }
 
   .code-copy-button:hover {
@@ -75,9 +78,9 @@
     transform: translateX(-0.25rem);
     white-space: nowrap;
     transition:
-      max-width 180ms ease,
-      opacity 140ms ease,
-      transform 180ms ease;
+      max-width var(--site-motion-base) var(--site-ease-standard),
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-base) var(--site-ease-standard);
   }
 
   .code-copy-button[data-state='success'],

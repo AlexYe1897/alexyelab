@@ -35,13 +35,13 @@ Alex Ye Lab 是我的个人技术知识与项目展示平台，用于记录 AI �
 
 ### 为什么选择 Astro
 
-网站以文章和项目内容为核心，大部分页面不需要复杂的客户端状态。Astro 默认采用静态生成，能够在构建阶段把页面输出为 HTML、CSS 和少量必要的 JavaScript，适合由 Nginx 直接托管。
+网站以文章和项目内容为核心，大部分页面不需要复杂的客户端状态。当前 Astro 构建实际为 static，配置中没有显式设置 `output`，使用默认静态输出行为，在构建阶段生成 HTML、CSS 和少量必要的 JavaScript，适合由静态 Web 服务托管。
 
 相比从 React SPA 或其他完整应用框架开始，Astro 对 Markdown、文件路由和内容集合提供了更直接的支持。它既能保持当前站点轻量，也保留了以后按需增加客户端交互的空间。
 
 ### Tailwind CSS 与 TypeScript
 
-Tailwind CSS 用于组织页面布局、响应式断点和组件状态。当前网站没有建立复杂的视觉系统，而是先通过统一的间距、边框、灰阶文字和卡片样式保持页面一致。
+Tailwind CSS 用于组织页面布局、响应式断点和组件状态。当前网站通过统一的颜色、字体、间距、圆角和动效 token 保持页面一致：首页保留深色太空视觉，内页提供亮色与暗色主题，文章正文则优先考虑长时间阅读的舒适度。
 
 TypeScript 主要用于内容结构、工具函数和组件属性约束。随着博客、项目和动态路由增加，类型检查可以减少字段变更造成的不一致，也更适合后续持续扩展。
 
@@ -59,7 +59,7 @@ src/content/
 └─ projects/
 ```
 
-两类内容分别使用 Astro Content Collections 管理。Collection schema 对标题、描述、标签、日期、状态、排序和草稿等字段进行校验，页面再通过 `getCollection()` 查询公开内容并生成静态路由。
+两类内容分别使用 Astro Content Collections 管理，schema 定义在 `src/content.config.ts`。Blog 校验标题、摘要、发布日期、分类、标签和草稿字段；Projects 校验标题、描述、标签、状态、精选、排序及可选链接等字段。页面再通过 `getCollection()` 查询非草稿内容并生成静态路由。
 
 这种结构带来的直接变化是：新增文章或项目时，主要工作转移到编写 Markdown 内容，而不再需要修改列表页的数据代码。
 
@@ -69,12 +69,15 @@ src/content/
 
 - Markdown 文章与 frontmatter 校验；
 - 按发布日期排序的文章列表；
-- 基于标题、摘要、分类和标签的本地实时搜索；
-- 标签聚合页；
+- 基于标题、摘要、分类和标签的本地实时搜索，多关键词采用 AND 匹配，查询同步到 URL；
+- 标签目录与标签文章页，目前只聚合 Blog 标签；
 - H2/H3 文章目录；
+- 代码高亮、具体语言标识和复制按钮；
 - 适合中英文混合内容的字数与阅读时间计算；
 - 按发布日期确定的上一篇和下一篇导航；
 - 草稿过滤与静态详情路由。
+
+标签由文章 frontmatter 中填写的 `tags` 聚合生成，不会自动从正文推断。
 
 其中，阅读时间会先去除 Markdown 标记和代码块，再分别按中文字符和英文单词估算。桌面端目录固定在正文右侧，移动端隐藏，以减少对正文阅读空间的影响。
 
@@ -85,10 +88,13 @@ Projects 最初只有项目卡片，后来也迁移为独立的 Content Collecti
 - `/projects` 项目列表；
 - `/projects/[slug]` 静态详情页；
 - 项目状态、技术标签和精选排序；
+- 基于标题、描述、标签和中英文状态的本地实时搜索；
 - Markdown 项目说明；
 - 可选的网站与源码入口。
 
 项目详情页沿用博客的排版和目录能力，但不显示文章字数、阅读时间或文章导航，避免混淆两类内容的用途。
+
+首页“精选项目”按 `order` 从非草稿且 `featured: true` 的项目中选取一个，不表示最近创建或更新的项目。
 
 ### 个人主页
 
@@ -98,21 +104,13 @@ About 页面用于说明当前身份、关注方向、正在学习和构建的�
 
 ### 服务器与静态文件
 
-网站部署在腾讯云轻量应用服务器上，服务器系统为 Ubuntu。Astro 构建后的静态文件由 Nginx 直接提供，不运行常驻的 Astro 开发服务器或预览服务器。
+网站的构建产物是 `dist/` 中的静态文件，生产托管不依赖常驻的 Astro 开发服务器或预览服务器。开发源码、依赖安装与构建过程、对外发布的静态资源各自承担不同职责。
 
-主要目录如下：
-
-```text
-/home/ubuntu/apps/alexyelab   # Git 仓库
-/home/ubuntu/apps/alexyelab/dist
-/var/www/alexyelab           # Nginx 实际托管目录
-```
-
-Nginx 的站点 `root` 指向 `/var/www/alexyelab`。日常部署只替换静态文件，不需要重新加载 Nginx；只有修改 Nginx 配置时，才执行配置检查和 reload。
+生产托管与自动发布配置在仓库之外维护，本文只记录工程思路，不公开服务器目录、部署入口或内部服务连接方式；具体运行状态以生产环境复核结果为准。
 
 ### HTTPS
 
-域名 `alexyelab.com` 通过 Nginx 对外提供服务，HTTPS 证书由 Certbot 和 Let's Encrypt 管理。Nginx 负责 HTTPS 入口、静态文件访问，以及 Webhook 请求的反向代理。
+网站的公开地址为 `https://alexyelab.com`。HTTPS、证书与缓存配置由托管环境维护；当前仓库不包含这些配置，不能仅根据早期部署记录判断现有的证书管理方式或访问链路。
 
 ## 部署方案的演进
 
@@ -134,86 +132,51 @@ Nginx 的站点 `root` 指向 `/var/www/alexyelab`。日常部署只替换静态
 
 ### 第二版：GitHub Actions + SSH
 
-第二版使用 GitHub Actions。代码推送到 GitHub 后，由 GitHub-hosted Runner 通过 SSH 登录腾讯云服务器，执行拉取、安装依赖、构建和文件复制。
+第二版曾尝试使用 GitHub Actions 通过远程命令触发构建和发布。这段实践让我意识到：交互式终端与自动化进程的运行环境不一定相同，外部执行环境也需要与托管环境的访问策略协调。
 
-这套方案曾经正常完成自动部署，也暴露了两个实际问题。
-
-第一个问题是非交互式 SSH 环境没有自动加载 NVM。手动登录时服务器使用 Node.js 22，但 Actions 的远程 Shell 一度使用 Node.js 18，导致 Astro 构建失败。部署命令显式加载 NVM 并执行 `nvm use 22` 后，版本问题得到解决。
-
-第二个问题来自 GitHub-hosted Runner 的动态公网出口地址。每次部署都会从不同地址发起 SSH 登录，腾讯云主机安全持续将这些连接识别为异常或高危登录。日志检查确认这些登录使用的是专门配置的 GitHub Actions SSH Key，并不是未经授权的访问，但持续告警仍然增加了安全判断和维护成本。
-
-因此，GitHub Actions + SSH 并不是因为无法工作而被放弃，而是部署入口和服务器安全策略并不适合当前个人网站。
+这套方案并不是因为无法工作而被放弃，而是维护成本与当前个人网站的规模不匹配。当前仓库没有 GitHub Actions workflow，也没有已实现的 CI 流程；这里记录的是历史方案，不代表当前仓库能力。
 
 ### 第三版：GitHub Webhook
 
-当前方案改为由服务器主动完成部署：
+根据此前的部署记录，后续方案改为由 GitHub 变更通知触发外部发布流程，发布端完成构建并更新静态资源。从开发者的角度看，流程可以概括为：
 
 ```text
 本地开发
   ↓ git push
-GitHub main
-  ↓ HTTPS Webhook
-Nginx /webhook
-  ↓ reverse proxy
-本地 Node.js Webhook Service
+GitHub 仓库
+  ↓ 变更通知
+外部构建与发布流程
   ↓
-deploy.sh
-  ↓
-拉取 main、构建并更新静态文件
+更新静态站点
 ```
 
-GitHub 不再通过 SSH 登录服务器。原有 Actions workflow 和对应的服务器部署 Key 被移除，部署入口变成一个经过签名验证的 HTTPS Webhook，请求链路更清晰，也避免了动态 Runner IP 带来的 SSH 告警。
+这一调整减少了发布操作与开发终端之间的耦合。通知接收服务、发布脚本及生产配置不在当前仓库中，是否仍按上述方式运行，需要在生产环境确认；本文不把历史记录中的安全能力视为本次已验证事实。
 
-## Webhook 自动部署实现
+## Webhook 自动部署的职责划分
 
-### 请求链路
+### 变更通知
 
-GitHub 仓库的 Webhook 配置为仅发送 push 事件，请求地址为：
+变更通知的作用是告诉发布端“有新的版本需要处理”，而不是直接托管网站内容。通知接收、发布条件与访问权限属于生产运维配置，不应混入文章或公开源码；相关配置需要独立维护和核验。
 
-```text
-https://alexyelab.com/webhook
-```
+### 构建与站点运行
 
-Nginx 将该路径反向代理到只在本机链路中使用的 Node.js 服务。Webhook Service 使用 Express 接收请求，并通过 Node.js `crypto` 模块验证 GitHub 的 `X-Hub-Signature-256`。
-
-签名验证使用共享 Secret 和 HMAC-SHA256。只有验证通过后，服务才会通过 `child_process` 调用 `/home/ubuntu/deploy.sh`。
-
-当前 GitHub 侧只发送 push 事件，部署脚本固定拉取 `origin main`。Node 服务是否额外检查事件 Header 和 `refs/heads/main` 尚未作为当前实现的一部分，因此没有把它描述为已完成的安全能力。
-
-### PM2 的职责
-
-PM2 只负责守护 Node.js Webhook Service，包括进程运行、异常恢复和 stdout/stderr 日志查看。Astro 网站本身是静态文件，不由 PM2 运行。
-
-部署和排错过程中，可以通过下面的方式查看 Webhook 与部署输出：
-
-```sh
-pm2 logs webhook
-```
+构建过程需要 Node.js、依赖安装和 Astro 构建命令，但网站访问只需要已经生成的静态文件。将构建工具与站点运行区分开，有助于理解为什么一个静态站点仍会涉及自动化进程，却不需要运行时 Astro 服务。
 
 ### 部署脚本
 
-当前部署脚本的核心流程为：
+从职责上，发布过程可以拆成以下几个阶段。这是流程说明，不是当前仓库提供的可执行部署脚本：
 
-```sh
-set -e
-
-export NVM_DIR="$HOME/.nvm"
-source "$NVM_DIR/nvm.sh"
-nvm use 22
-
-cd ~/apps/alexyelab
-
-git pull origin main
-npm ci
-npm run build
-
-sudo rm -rf /var/www/alexyelab/*
-sudo cp -r dist/* /var/www/alexyelab/
+```text
+确认待发布版本
+  ↓
+安装依赖并构建
+  ↓
+发布构建产物
+  ↓
+检查页面与资源
 ```
 
-`set -e` 确保依赖安装或构建失败时脚本立即停止，不会执行后面的线上目录清理，因此普通构建失败不会删除当前线上版本。
-
-当前“清空目录后复制”的步骤不是原子部署。如果复制阶段发生异常，理论上仍可能出现短暂的不完整状态。后续可以使用 release 目录与符号链接，或更合适的同步策略进一步改善部署可靠性。
+具体的运行时版本、目录、命令、失败处理和恢复方式由部署环境维护。公开项目说明保留阶段划分和设计经验，不替代生产操作手册。
 
 ## SEO 与基础优化
 
@@ -222,47 +185,51 @@ sudo cp -r dist/* /var/www/alexyelab/
 - 页面级 title 和 description；
 - Canonical URL；
 - Open Graph 与基础 Twitter Card；
+- 按页面类型生成的 JSON-LD；
 - Astro 官方 `@astrojs/sitemap`；
-- 动态生成的 `robots.txt`；
+- 构建时生成的 `robots.txt` 和 Blog RSS；
 - 静态页面与 Content Collection 动态路由自动加入 Sitemap。
 
 这些能力集中在公共 Layout 和 Astro 配置中，不需要每个页面重复维护。博客文章和项目详情页会使用各自 Content Collection 中的标题与描述生成 metadata。
+
+中文字体在 dev/build 前按源码内容生成子集，减少字体下载体积；搜索、主题、菜单和阅读辅助使用少量原生脚本，避免为当前规模引入完整客户端框架。页面切换采用轻量淡入淡出，并兼容减少动态效果的设置。
 
 ## 工程问题与取舍
 
 ### Node.js 环境一致性
 
-本地和服务器统一使用 Node.js 22。服务器通过 NVM 管理版本，部署脚本主动加载 NVM，避免交互式 Shell 与自动部署 Shell 使用不同 Node.js 版本。
+开发环境已经从 Windows 迁移到 Mac。当前 `package.json` 要求 Node.js `>=22.12.0`，但本地实际版本与生产构建环境可能不同，不能把满足版本要求等同于已经统一运行环境。
 
-### Nginx 目录分离
+此前自动化排错的经验是：构建环境应显式管理运行时版本，而不是依赖交互式终端的默认状态。生产构建使用的版本仍需单独核验。
 
-Git 仓库和 Web Root 使用不同目录：仓库负责安装依赖与构建，`/var/www/alexyelab` 只保存对外提供的静态文件。这使源代码、依赖和生产静态资源的职责更加明确。
+### 源码与发布产物分离
+
+源码工作区负责安装依赖与构建，对外发布的是静态产物。把两者分离，使开发、构建和访问的职责更加明确，也避免把源码目录当作公开站点目录。
 
 ### 自动部署入口
 
-GitHub Actions + SSH 在技术上可行，但动态 Runner IP 与云服务器安全告警产生冲突。Webhook 方案让服务器接收经过验证的事件后主动拉取代码，减少了外部 SSH 登录，也更符合当前项目规模。
+GitHub Actions + SSH 在技术上可行，但并不一定是每个个人网站最合适的方式。对我而言，选择自动发布方案时更重要的是流程可理解、运行环境可确认，以及长期维护成本与项目规模匹配。
 
 ### 当前仍可改进的地方
 
-- 将 Webhook Secret 从服务代码配置迁移到环境变量或 PM2 环境配置；
-- 在 Node 服务中显式校验 GitHub 事件类型和目标分支；
-- 将静态文件发布升级为原子切换，降低复制过程异常的影响；
-- 确认并完善 PM2 的系统启动恢复配置；
-- 继续补充部署日志、失败通知和回滚能力。
+- 持续复核生产配置，避免实践记录与实际运行状态漂移；
+- 用真实长文章验证图片、表格、代码和移动端阅读体验；
+- 完善发布后的页面与资源检查，持续改善维护效率；
+- 补充真实内容和项目进展，保持说明与代码一致。
 
 ## 技术栈
 
-| 范围 | 技术 |
-| --- | --- |
-| 网站与样式 | Astro、TypeScript、Tailwind CSS |
-| 内容 | Markdown、Astro Content Collections |
-| 服务器 | Ubuntu、Nginx、Node.js、PM2 |
-| 部署 | Git、GitHub Webhook、Express、Shell Script |
-| HTTPS | Certbot、Let's Encrypt |
-| SEO | Sitemap、robots.txt、Canonical URL、Open Graph |
+| 范围       | 技术                                                         |
+| ---------- | ------------------------------------------------------------ |
+| 网站与样式 | Astro 7、TypeScript 6、Tailwind CSS 4                        |
+| 内容       | Markdown、Astro Content Collections                          |
+| 构建与字体 | Node.js、npm、subset-font                                    |
+| 发布       | Git 与仓库外维护的静态站点发布流程                           |
+| HTTPS      | 由托管环境维护，具体配置待生产环境确认                       |
+| SEO        | Sitemap、robots.txt、RSS、Canonical URL、Open Graph、JSON-LD |
 
 ## 当前状态与后续计划
 
-Alex Ye Lab 已经建立博客、项目、About、SEO 和自动部署的基本闭环，目前仍处于持续维护状态。
+Alex Ye Lab 已经在仓库中建立博客、项目、About、SEO 和静态构建的基本闭环，目前仍处于持续维护状态。自动部署属于此前生产实践的一部分，其运行情况与安全配置不由当前源码直接证明。
 
 后续重点不是一次性加入大量功能，而是继续补充 AI 与算法学习内容、记录更多真实项目实践，并逐步改善内容组织、视觉体验和部署可靠性。

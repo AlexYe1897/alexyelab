@@ -180,10 +180,10 @@ const isActive = (href: string) => {
     transform: translateY(-0.25rem);
     visibility: hidden;
     transition:
-      grid-template-rows 180ms ease,
-      opacity 150ms ease,
-      transform 180ms ease,
-      visibility 0s linear 180ms;
+      grid-template-rows var(--site-motion-base) var(--site-ease-standard),
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-base) var(--site-ease-standard),
+      visibility 0s linear var(--site-motion-base);
   }
 
   .mobile-menu[data-state='open'] {
@@ -198,8 +198,8 @@ const isActive = (href: string) => {
   .nav-close-icon,
   .theme-toggle-icon {
     transition:
-      opacity 150ms ease,
-      transform 180ms ease;
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-base) var(--site-ease-standard);
   }
 
   .theme-toggle-icon {
@@ -256,8 +256,35 @@ const isActive = (href: string) => {
   const root = document.documentElement;
   const themeStorageKey = 'alexyelab-theme';
   const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  const reducedMotionMedia = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  );
   let themeTransitionTimer: number | undefined;
   let navbarController: AbortController | undefined;
+
+  const clearThemeTransition = () => {
+    if (themeTransitionTimer !== undefined) {
+      window.clearTimeout(themeTransitionTimer);
+      themeTransitionTimer = undefined;
+    }
+    root.classList.remove('theme-changing');
+  };
+
+  const getThemeTransitionDuration = () => {
+    const value = window
+      .getComputedStyle(root)
+      .getPropertyValue('--site-motion-theme')
+      .trim();
+    const duration = Number.parseFloat(value);
+    if (!Number.isFinite(duration) || duration < 0) return 240;
+    return value.endsWith('ms') ? duration : duration * 1000;
+  };
+
+  const cleanupNavbar = () => {
+    navbarController?.abort();
+    navbarController = undefined;
+    clearThemeTransition();
+  };
 
   const readStoredTheme = () => {
     try {
@@ -286,17 +313,23 @@ const isActive = (href: string) => {
     theme: 'light' | 'dark',
     options: { persist?: boolean; animate?: boolean } = {},
   ) => {
-    if (root.dataset.themeLock === 'dark') return;
+    if (root.dataset.themeLock === 'dark') {
+      clearThemeTransition();
+      return;
+    }
 
-    if (options.animate) {
-      root.classList.add('theme-changing');
+    if (options.animate && !reducedMotionMedia.matches) {
       if (themeTransitionTimer !== undefined) {
         window.clearTimeout(themeTransitionTimer);
       }
-      themeTransitionTimer = window.setTimeout(() => {
-        root.classList.remove('theme-changing');
-        themeTransitionTimer = undefined;
-      }, 260);
+      root.classList.add('theme-changing');
+      // Leave a short rendering margin before removing the transition rule.
+      themeTransitionTimer = window.setTimeout(
+        clearThemeTransition,
+        getThemeTransitionDuration() + 50,
+      );
+    } else {
+      clearThemeTransition();
     }
 
     root.dataset.theme = theme;
@@ -324,8 +357,12 @@ const isActive = (href: string) => {
     applyTheme(event.matches ? 'dark' : 'light');
   });
 
+  reducedMotionMedia.addEventListener('change', (event) => {
+    if (event.matches) clearThemeTransition();
+  });
+
   const initializeNavbar = () => {
-    navbarController?.abort();
+    cleanupNavbar();
     navbarController = new AbortController();
     const { signal } = navbarController;
 
@@ -339,10 +376,10 @@ const isActive = (href: string) => {
           'click',
           () => {
             const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-            const reduceMotion = window.matchMedia(
-              '(prefers-reduced-motion: reduce)',
-            ).matches;
-            applyTheme(nextTheme, { persist: true, animate: !reduceMotion });
+            applyTheme(nextTheme, {
+              persist: true,
+              animate: !reducedMotionMedia.matches,
+            });
           },
           { signal },
         );
@@ -404,5 +441,7 @@ const isActive = (href: string) => {
     });
   };
 
+  document.addEventListener('astro:before-swap', cleanupNavbar);
   document.addEventListener('astro:page-load', initializeNavbar);
+  window.addEventListener('pagehide', clearThemeTransition);
 </script>

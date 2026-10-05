@@ -121,9 +121,9 @@ const postsWithInfo = posts
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     transition:
-      width 180ms ease,
-      color 150ms ease,
-      background-color 150ms ease;
+      width var(--site-motion-base) var(--site-ease-standard),
+      color var(--site-motion-fast) var(--site-ease-standard),
+      background-color var(--site-motion-fast) var(--site-ease-standard);
   }
 
   .tag-index-label {
@@ -131,9 +131,9 @@ const postsWithInfo = posts
     opacity: 0;
     transform: translateX(-0.25rem);
     transition:
-      max-width 180ms ease,
-      opacity 140ms ease,
-      transform 180ms ease;
+      max-width var(--site-motion-base) var(--site-ease-standard),
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-base) var(--site-ease-standard);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -202,7 +202,9 @@ const postsWithInfo = posts
       } else {
         url.searchParams.delete('q');
       }
-      window.history.replaceState({}, '', url);
+      if (url.href !== window.location.href) {
+        window.history.replaceState(window.history.state, '', url);
+      }
     };
 
     const initialQuery = new URL(window.location.href).searchParams.get('q');

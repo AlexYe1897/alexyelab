@@ -26,7 +26,7 @@ const featuredProjects = (
             stroke-linejoin="round"></path>
         </svg>
       </span>
-      最新项目
+      精选项目
     </h2>
 
     <a href="/projects" class="home-preview-link" aria-label="查看全部项目">
@@ -49,6 +49,7 @@ const featuredProjects = (
           title={project.data.title}
           description={project.data.description}
           tags={project.data.tags}
+          status={project.data.status}
           variant="home"
         />
       ))
@@ -83,10 +84,10 @@ const featuredProjects = (
     height: 2.35rem;
     color: rgb(173 207 193 / 70%);
     transition:
-      color 180ms ease,
-      border-color 180ms ease,
-      background-color 180ms ease,
-      transform 180ms ease;
+      color var(--site-motion-fast) var(--site-ease-standard),
+      border-color var(--site-motion-fast) var(--site-ease-standard),
+      background-color var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-fast) var(--site-ease-standard);
   }
 
   .home-preview-link svg {
@@ -100,6 +101,16 @@ const featuredProjects = (
       background: rgb(24 54 42 / 74%);
       color: #9ce8c7;
       transform: translateX(2px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-preview-link {
+      transition: none;
+    }
+
+    .home-preview-link:hover {
+      transform: none;
     }
   }
 </style>

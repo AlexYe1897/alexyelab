@@ -71,6 +71,10 @@ const tableOfContents = headings
 }
 
 <style>
+  .toc-link {
+    transition: color var(--site-motion-fast) var(--site-ease-standard);
+  }
+
   .toc-link::before {
     position: absolute;
     top: 0.125rem;
@@ -83,8 +87,8 @@ const tableOfContents = headings
     opacity: 0;
     transform: scaleY(0.5);
     transition:
-      opacity 150ms ease,
-      transform 180ms ease;
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-base) var(--site-ease-standard);
   }
 
   .toc-link[data-active] {
@@ -114,6 +118,7 @@ const tableOfContents = headings
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .toc-link,
     .toc-link::before {
       transition: none;
     }
@@ -121,15 +126,22 @@ const tableOfContents = headings
 </style>
 
 <script>
-  let tableOfContentsController: AbortController | undefined;
-  let tableOfContentsFrames: number[] = [];
+  import { navigate } from 'astro:transitions/client';
 
-  const initializeTableOfContents = () => {
+  let tableOfContentsController: AbortController | undefined;
+  const tableOfContentsFrames = new Set<number>();
+
+  const cleanupTableOfContents = () => {
     tableOfContentsController?.abort();
+    tableOfContentsController = undefined;
     tableOfContentsFrames.forEach((frame) =>
       window.cancelAnimationFrame(frame),
     );
-    tableOfContentsFrames = [];
+    tableOfContentsFrames.clear();
+  };
+
+  const initializeTableOfContents = () => {
+    cleanupTableOfContents();
     tableOfContentsController = new AbortController();
     const { signal } = tableOfContentsController;
 
@@ -161,9 +173,8 @@ const tableOfContents = headings
 
         if (entries.length === 0) return;
 
-        const tocList = tableOfContents.querySelector<HTMLElement>(
-          '[data-toc-list]',
-        );
+        const tocList =
+          tableOfContents.querySelector<HTMLElement>('[data-toc-list]');
         let currentActiveLink: HTMLAnchorElement | undefined;
 
         const revealActiveLink = (activeLink: HTMLAnchorElement) => {
@@ -228,34 +239,60 @@ const tableOfContents = headings
         const scheduleUpdate = () => {
           if (scheduledFrame !== undefined) return;
 
-          scheduledFrame = window.requestAnimationFrame(() => {
+          const frame = window.requestAnimationFrame(() => {
+            tableOfContentsFrames.delete(frame);
             updateActiveLink();
             scheduledFrame = undefined;
           });
+          scheduledFrame = frame;
+          tableOfContentsFrames.add(frame);
         };
 
         for (const entry of entries) {
           entry.link.addEventListener(
             'click',
-            (event) => {
+            async (event) => {
               const isModifiedClick =
-                event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
+                event.ctrlKey ||
+                event.metaKey ||
+                event.shiftKey ||
+                event.altKey;
+
+              if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                isModifiedClick
+              )
+                return;
+
               const prefersReducedMotion = window.matchMedia(
                 '(prefers-reduced-motion: reduce)',
               ).matches;
 
-              if (isModifiedClick || prefersReducedMotion) {
-                setActiveLink(entry.link);
+              event.preventDefault();
+              setActiveLink(entry.link);
+
+              if (entry.link.href === window.location.href) {
+                entry.heading.scrollIntoView({
+                  behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                  block: 'start',
+                });
                 return;
               }
 
-              event.preventDefault();
-              setActiveLink(entry.link);
-              entry.heading.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-              });
-              window.history.pushState(null, '', entry.link.hash);
+              // Let Astro own the history entry while its native hash scroll
+              // uses the same motion preference as the rest of the directory.
+              const root = document.documentElement;
+              const previousScrollBehavior = root.style.scrollBehavior;
+              root.style.scrollBehavior = prefersReducedMotion
+                ? 'auto'
+                : 'smooth';
+
+              try {
+                await navigate(entry.link.href, { sourceElement: entry.link });
+              } finally {
+                root.style.scrollBehavior = previousScrollBehavior;
+              }
             },
             { signal },
           );
@@ -267,12 +304,9 @@ const tableOfContents = headings
         });
         window.addEventListener('resize', scheduleUpdate, { signal });
         scheduleUpdate();
-
-        if (scheduledFrame !== undefined) {
-          tableOfContentsFrames.push(scheduledFrame);
-        }
       });
   };
 
+  document.addEventListener('astro:before-swap', cleanupTableOfContents);
   document.addEventListener('astro:page-load', initializeTableOfContents);
 </script>

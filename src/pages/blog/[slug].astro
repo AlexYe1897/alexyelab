@@ -64,7 +64,9 @@ const { wordCount, readingTime } = getReadingStats(post.body);
     tags: post.data.tags,
   }}
 >
-  <div class="detail-page mx-auto max-w-6xl px-6 pt-8 pb-12 sm:pt-10 sm:pb-16">
+  <div
+    class="detail-page mx-auto max-w-6xl px-4 pt-8 pb-12 sm:px-6 sm:pt-10 sm:pb-16"
+  >
     <article>
       <div
         class:list={[
@@ -72,7 +74,7 @@ const { wordCount, readingTime } = getReadingStats(post.body);
             'lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12',
         ]}
       >
-        <div class="article-paper detail-paper min-w-0 p-6 sm:p-8">
+        <div class="article-paper detail-paper min-w-0 p-4 sm:p-8">
           <header class="detail-header detail-article-header">
             <a href="/blog" class="detail-back-link" aria-label="返回博客列表">
               <svg
@@ -86,13 +88,12 @@ const { wordCount, readingTime } = getReadingStats(post.body);
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="m15 18-6-6 6-6"
-                ></path>
+                  d="m15 18-6-6 6-6"></path>
               </svg>
               <span>博客</span>
             </a>
 
-            <h1 class="mt-6 text-4xl weight-display tracking-tight">
+            <h1 class="mt-6 text-3xl weight-display tracking-tight sm:text-4xl">
               <DisplayTitleText text={post.data.title} />
             </h1>
 
