@@ -5,6 +5,7 @@ import TableOfContents from '../../components/TableOfContents.astro';
 import CodeBlockEnhancer from '../../components/CodeBlockEnhancer.astro';
 import DisplayTitleText from '../../components/DisplayTitleText.astro';
 import BackToTop from '../../components/BackToTop.astro';
+import ReadingFontControls from '../../components/ReadingFontControls.astro';
 import { getReadingStats } from '../../utils/reading';
 import { toTagSlug } from '../../utils/tags';
 
@@ -118,8 +119,11 @@ const { wordCount, readingTime } = getReadingStats(post.body);
 
               <span aria-hidden="true" class="hidden sm:inline"> · </span>
 
-              <span class="whitespace-nowrap">
-                预计阅读 {readingTime} 分钟
+              <span class="inline-flex items-center gap-1">
+                <span class="whitespace-nowrap">
+                  预计阅读 {readingTime} 分钟
+                </span>
+                <ReadingFontControls contentId="article-content" />
               </span>
             </div>
 
@@ -137,7 +141,11 @@ const { wordCount, readingTime } = getReadingStats(post.body);
             </div>
           </header>
 
-          <div class="article-prose prose prose-lg max-w-none">
+          <div
+            id="article-content"
+            data-reading-content
+            class="article-prose prose prose-lg max-w-none"
+          >
             <Content />
           </div>
 

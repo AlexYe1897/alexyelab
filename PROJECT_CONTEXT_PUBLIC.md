@@ -1,6 +1,6 @@
 # AlexYeLab 项目上下文（公开版）
 
-> 文档核对日期：2026-10-05，以当前工作区源码为准。Git 参考为 `main` 分支、最近已提交的 `617bacc`；近期界面与交互修改仍在工作区，不能据此断言已提交或上线。
+> 文档核对日期：2026-10-10，以当前工作区源码为准。Git 参考为 `main` 分支、最近已提交的 `5cc2f21`；本轮文章字号调节修改仍在工作区，不能据此断言已提交或上线。
 >
 > Mac 验证环境：Node 26.9.0 / npm 11.19.1。Windows 旧验证环境 Node 22.14.0 / npm 10.9.2 仅作历史参考。
 >
@@ -31,7 +31,7 @@ AlexYeLab 是 Alex Ye 的个人技术网站，主要用于：
 - 展示个人项目及项目实施记录；
 - 作为长期可维护、轻量且有个人辨识度的技术主页。
 
-网站不是 SaaS 或后台系统。当前采用完全静态输出，优先考虑阅读体验、性能、SEO、移动端适配和低维护成本。当前内容量较少：1 篇 Blog、3 个 Projects。
+网站不是 SaaS 或后台系统。当前采用完全静态输出，优先考虑阅读体验、性能、SEO、移动端适配和低维护成本。当前内容量较少：2 篇 Blog、3 个 Projects。
 
 ## 2. 当前技术栈
 
@@ -63,7 +63,7 @@ src/
 ├─ layouts/Layout.astro      # 全站 head、SEO、主题初始化、导航、页脚、页面过渡
 ├─ pages/                    # Astro 路由
 ├─ styles/global.css         # 设计 token、字体、主题、全局组件样式
-└─ utils/                    # 阅读时长/字数与 tag slug 规则
+└─ utils/                    # 阅读时长/字数、字号偏好与 tag slug 规则
 
 public/
 ├─ fonts/                    # 拉丁字体、代码字体及许可文件
@@ -85,6 +85,7 @@ AGENTS.md / CLAUDE.md        # 本地开发及 Astro 文档约定
 - `TableOfContents.astro`：桌面端 h2/h3 目录、编号、当前章节跟随和内部滚动。
 - `CodeBlockEnhancer.astro`：代码语言栏与复制按钮。
 - `BackToTop.astro`：详情页返回顶部按钮。
+- `ReadingFontControls.astro`：阅读时间旁的轻量字号加减按钮、悬停/键盘提示与浏览器偏好记忆。
 - `DisplayTitleText.astro`：标题中中英文/数字的字重呈现。
 - `About.astro`：About 各内容段、桌面侧边导航和分段背景色逻辑。
 
@@ -98,6 +99,7 @@ AGENTS.md / CLAUDE.md        # 本地开发及 Astro 文档约定
 - 卡片展示分类、日期、字数、摘要和标签，整张卡片可点击。
 - 搜索覆盖标题、摘要、分类和标签；多个词采用 AND 匹配；查询写入 URL 并可恢复。
 - `/blog/[slug]` 提供文章元信息、阅读字数/时间、标签、Markdown 正文、代码增强、TOC、上一篇/下一篇和返回顶部。
+- 阅读时间旁提供 A− / A+ 字号按钮，不显示独立工具条；悬停或键盘聚焦时显示“字体减小 / 字体增加”提示，Escape 可关闭提示。手机保持紧凑排列与足够点击区域，阅读时间和按钮一起换行。字号范围为默认的 85%–125%，每次调整 5%，当前不显示比例或单独的恢复默认按钮。设置保存在浏览器，刷新和切换文章后继续生效；正文与章节标题一起调整，导航、页面主标题、TOC 与代码块保持原字号。浏览器存储不可用时仍可在当前页面调整。
 - `draft: true` 在本地开发与正式构建中均被过滤，当前没有独立草稿预览。`pubDate` 只参与展示与排序，不提供定时发布。
 - 搜索只匹配上述元信息，不检索正文；当前未配置 MDX、数学公式渲染或最后更新时间字段。
 - 当前未启用分页，内容少时保持单页列表。
@@ -129,6 +131,7 @@ AGENTS.md / CLAUDE.md        # 本地开发及 Astro 文档约定
 
 - TOC 只收集 h2/h3，自动编号，仅在大屏显示，长目录可内部滚动并跟随当前章节。
 - 代码块保留具体语言名称，提供复制按钮。
+- Blog 表格单元格允许长网址等连续文本换行，避免窄屏或放大字号时被裁切。
 - 详情页在滚动超过约 600px 后显示返回顶部。
 - 正式站点为 `https://alexyelab.com`。
 - Layout 统一输出 title、description、canonical、Open Graph、Twitter Card 和 JSON-LD。
@@ -166,13 +169,13 @@ npm run build
 注意：
 
 - 仓库当前没有 `.nvmrc`，以 `package.json` 的 `engines.node >=22.12.0` 为准。
-- 2026-10-05 本机仍为 Node 26.9.0 / npm 11.19.1。不推定本机与生产构建环境使用同一版本，生产版本待环境确认。
+- 2026-10-10 本机仍为 Node 26.9.0 / npm 11.19.1。不推定本机与生产构建环境使用同一版本，生产版本待环境确认。
 - `package-lock.json` 中当前依赖下载地址使用 `registry.npmmirror.com`；是否长期保留待确认。
 - `npm run build` 会依次执行中文字体子集构建、`astro check` 和静态构建。
 - `public/fonts/noto-sans-sc-site.woff2` 是生成物且被 `.gitignore` 忽略。
 - `scripts/build-fonts.mjs` 使用 Node 路径 API，可跨 Windows/macOS。
 - 迁移阶段 Mac 验证曾得到字体子集 578 个字符、约 154 KiB；该数字仅为历史参考，字符数和体积会随源码与内容变化，不应作为固定验收值。
-- 最近一轮交互改动已通过本地构建与生产预览：Astro 检查 0 error / 0 warning / 0 hint，12 个页面构建成功；已检查窄屏搜索、主题切换、移动菜单与 About 导航，不代表真实设备或生产环境已全部验收。
+- 当前本地构建通过：Astro 检查 0 error / 0 warning / 0 hint，15 个页面构建成功。此前已检查窄屏搜索、主题切换、移动菜单与 About 导航；文章字号已检查上下限、刷新记忆、跨文章切换、键盘操作、亮暗主题和 320/390px 窄屏布局。本轮改为阅读时间旁的加减按钮，并核对悬停提示与手机点击区域；不代表真实设备或生产环境已全部验收。
 
 当前内容集合读取 `.md` 文件，默认由内容 ID 生成路由。示例均直接放在 Blog/Projects 目录下，以文件名对应 URL；已发布内容改名会改变链接。写作时按 schema 填写 frontmatter，正文从 h2 开始可避免重复主标题。具体模板见 `README.md`。
 
@@ -245,7 +248,7 @@ npm run astro -- dev stop
 
 **计划中，但未承诺全部实施：**
 
-- 扩充真实 Blog 内容；目前只有 `kv-cache.md`。
+- 继续扩充真实 Blog 内容；目前已有 KV Cache 与本地模型部署两篇文章。
 - 完善其余两个项目的正文和真实进度，避免示例感。
 - 增加仅开发环境可用的草稿预览，正式构建仍过滤草稿；按实际需求评估可选更新时间与数学公式渲染。
 - 增加不连接生产凭据的自动构建检查，再逐步覆盖搜索、目录历史、主题和移动菜单等交互回归。
@@ -307,12 +310,13 @@ git status --short
 - `src/components/TableOfContents.astro`：编号、激活、内部滚动和高度。
 - `src/components/HomeBackground.astro`、`Hero.astro`、`src/pages/index.astro`：首页布局与动效。
 - `src/components/Navbar.astro`、`About.astro`：导航、主题、About 滚动逻辑。
-- `src/utils/tags.ts`、`reading.ts`：slug 与阅读统计。
+- `src/utils/tags.ts`、`reading.ts`、`reading-font.ts`：slug、阅读统计与字号偏好校验。
+- `src/components/ReadingFontControls.astro`：字号调整范围、存储降级与页面切换清理。
 - `scripts/build-fonts.mjs`：字体子集生成。
 - `README.md`、本文与项目正文：确认功能、写作流程、开发环境和计划描述与实现一致，且无私有运维信息。
 
 ### 本地页面验证
 
-至少检查：`/`、`/about`、`/blog`、博客详情页、`/projects`、项目详情页、`/tags`、`/rss.xml`、`/robots.txt` 和不存在的路径。分别测试桌面/手机宽度、亮暗主题、搜索 URL、移动菜单、TOC、代码复制、返回顶部和减少动态效果。
+至少检查：`/`、`/about`、`/blog`、博客详情页、`/projects`、项目详情页、`/tags`、`/rss.xml`、`/robots.txt` 和不存在的路径。分别测试桌面/手机宽度、亮暗主题、搜索 URL、移动菜单、TOC、代码复制、文章字号与偏好记忆、返回顶部和减少动态效果。
 
 公开内容检查应覆盖 README、本文以及所有非草稿与草稿 Markdown，不能只检查交接文档。上线验收还需另行确认实际发布版本、深链与 404 状态码、资源缓存刷新、压缩和真实设备表现；无法从仓库验证的项目保留为待环境确认。

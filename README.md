@@ -28,6 +28,7 @@
 - 标签目录 `/tags` 与标签文章页 `/tags/[tag]`
 - Shiki 语法高亮、代码语言栏和复制按钮
 - 桌面端 h2/h3 文章目录、当前章节跟随和上一篇/下一篇导航
+- 阅读时间旁提供轻量 A− / A+ 字号按钮，悬停或键盘聚焦时显示提示；可按 5% 步长调整至默认的 85%–125%，浏览器记住选择，正文与章节标题同步调整，导航与代码块字号保持不变
 - 详情页返回顶部按钮
 
 ### Projects
@@ -96,7 +97,7 @@
 │  │  └─ rss.xml.ts
 │  ├─ styles/
 │  │  └─ global.css              # 字体、主题 token 与全局组件样式
-│  ├─ utils/                     # 阅读统计与标签 slug 工具
+│  ├─ utils/                     # 阅读统计、字号偏好与标签 slug 工具
 │  └─ content.config.ts          # Blog 与 Projects collection schema
 ├─ astro.config.mjs
 ├─ package.json

@@ -1,0 +1,342 @@
+---
+import {
+  READING_FONT_DEFAULT,
+  READING_FONT_PERCENTAGES,
+  READING_FONT_STORAGE_KEY,
+} from '../utils/reading-font';
+
+interface Props {
+  contentId: string;
+}
+
+const { contentId } = Astro.props;
+---
+
+<span
+  data-reading-font-controls
+  class="reading-font-controls"
+  role="group"
+  aria-label="文章字号调节"
+  hidden
+>
+  <span class="reading-font-separator" aria-hidden="true">·</span>
+  <span class="reading-font-control">
+    <button
+      data-reading-font-decrease
+      type="button"
+      aria-label="字体减小"
+      aria-controls={contentId}
+      aria-describedby={`${contentId}-font-decrease-tip`}
+      class="reading-font-button"
+    >
+      <span aria-hidden="true">A−</span>
+    </button>
+    <span
+      id={`${contentId}-font-decrease-tip`}
+      class="reading-font-tooltip"
+      role="tooltip"
+    >
+      字体减小
+    </span>
+  </span>
+  <span class="reading-font-control">
+    <button
+      data-reading-font-increase
+      type="button"
+      aria-label="字体增加"
+      aria-controls={contentId}
+      aria-describedby={`${contentId}-font-increase-tip`}
+      class="reading-font-button"
+    >
+      <span aria-hidden="true">A+</span>
+    </button>
+    <span
+      id={`${contentId}-font-increase-tip`}
+      class="reading-font-tooltip"
+      role="tooltip"
+    >
+      字体增加
+    </span>
+  </span>
+  <span data-reading-font-status class="sr-only" role="status"></span>
+</span>
+
+<!-- Apply saved sizing before the prose is parsed to avoid a default-size flash. -->
+<script
+  is:inline
+  data-astro-rerun
+  define:vars={{
+    storageKey: READING_FONT_STORAGE_KEY,
+    percentages: READING_FONT_PERCENTAGES,
+    defaultPercent: READING_FONT_DEFAULT,
+  }}
+>
+  (() => {
+    let percent = defaultPercent;
+    try {
+      const saved = Number(window.localStorage.getItem(storageKey));
+      if (percentages.includes(saved)) percent = saved;
+    } catch {
+      // Reading remains usable when browser storage is unavailable.
+    }
+    document.documentElement.style.setProperty(
+      '--site-reading-font-scale',
+      String(percent / 100),
+    );
+  })();
+</script>
+
+<style>
+  .reading-font-controls:not([hidden]) {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.125rem;
+  }
+
+  .reading-font-separator {
+    margin-inline: 0.375rem;
+  }
+
+  .reading-font-control {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .reading-font-button {
+    display: inline-flex;
+    min-width: 1.875rem;
+    min-height: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      color var(--site-motion-fast) var(--site-ease-standard),
+      background-color var(--site-motion-fast) var(--site-ease-standard);
+  }
+
+  .reading-font-button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .reading-font-button:focus-visible {
+    outline: 2px solid var(--site-focus);
+    outline-offset: -2px;
+  }
+
+  .reading-font-tooltip {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    top: calc(100% + 0.25rem);
+    width: max-content;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--site-line);
+    border-radius: 0.375rem;
+    background: var(--site-surface);
+    color: var(--site-ink-muted);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 8%);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-0.2rem);
+    transition:
+      opacity var(--site-motion-fast) var(--site-ease-standard),
+      transform var(--site-motion-fast) var(--site-ease-standard),
+      visibility 0s linear var(--site-motion-fast);
+  }
+
+  .reading-font-tooltip::after {
+    position: absolute;
+    right: 0;
+    top: -0.5rem;
+    left: 0;
+    height: 0.5rem;
+    content: '';
+  }
+
+  .reading-font-controls:not([data-tooltip-dismissed])
+    .reading-font-button:focus-visible
+    + .reading-font-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .reading-font-button:not(:disabled):hover {
+      background: var(--site-accent-soft);
+      color: var(--site-accent);
+    }
+
+    .reading-font-controls:not([data-tooltip-dismissed])
+      .reading-font-control:hover
+      .reading-font-tooltip {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0s;
+    }
+  }
+
+  @media (max-width: 39.999rem), (pointer: coarse) {
+    .reading-font-controls {
+      /* Keep a compact metadata line while retaining 44px touch targets. */
+      margin-block: -0.5rem;
+    }
+
+    .reading-font-button {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reading-font-button,
+    .reading-font-tooltip {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import {
+    parseReadingFontPercent,
+    READING_FONT_DEFAULT,
+    READING_FONT_PERCENTAGES,
+    READING_FONT_STORAGE_KEY,
+  } from '../utils/reading-font';
+
+  let readingFontController: AbortController | undefined;
+  let currentPercent = READING_FONT_DEFAULT;
+
+  const readSavedPercent = () => {
+    try {
+      return parseReadingFontPercent(
+        window.localStorage.getItem(READING_FONT_STORAGE_KEY),
+      );
+    } catch {
+      return currentPercent;
+    }
+  };
+
+  const updateReadingFont = (percent: number, persist = false) => {
+    currentPercent = percent;
+    document.documentElement.style.setProperty(
+      '--site-reading-font-scale',
+      String(percent / 100),
+    );
+
+    document
+      .querySelectorAll<HTMLElement>('[data-reading-font-controls]')
+      .forEach((controls) => {
+        const decrease = controls.querySelector<HTMLButtonElement>(
+          '[data-reading-font-decrease]',
+        );
+        const increase = controls.querySelector<HTMLButtonElement>(
+          '[data-reading-font-increase]',
+        );
+        const status = controls.querySelector('[data-reading-font-status]');
+
+        if (decrease)
+          decrease.disabled = percent === READING_FONT_PERCENTAGES[0];
+        if (increase) {
+          increase.disabled = percent === READING_FONT_PERCENTAGES.at(-1);
+        }
+        if (status) status.textContent = `当前文章字号为默认的 ${percent}%`;
+      });
+
+    if (persist) {
+      try {
+        if (percent === READING_FONT_DEFAULT) {
+          window.localStorage.removeItem(READING_FONT_STORAGE_KEY);
+        } else {
+          window.localStorage.setItem(
+            READING_FONT_STORAGE_KEY,
+            String(percent),
+          );
+        }
+      } catch {
+        // Keep the current page working even when preferences cannot be saved.
+      }
+    }
+  };
+
+  const cleanupReadingFontControls = () => {
+    readingFontController?.abort();
+    readingFontController = undefined;
+  };
+
+  const initializeReadingFontControls = () => {
+    cleanupReadingFontControls();
+    const controls = document.querySelector<HTMLElement>(
+      '[data-reading-font-controls]',
+    );
+    if (!controls) return;
+
+    readingFontController = new AbortController();
+    const { signal } = readingFontController;
+    updateReadingFont(readSavedPercent());
+
+    const changeSize = (direction: -1 | 1) => {
+      const currentIndex = READING_FONT_PERCENTAGES.findIndex(
+        (percent) => percent === currentPercent,
+      );
+      const nextPercent = READING_FONT_PERCENTAGES[currentIndex + direction];
+      if (nextPercent !== undefined) updateReadingFont(nextPercent, true);
+    };
+
+    controls
+      .querySelector('[data-reading-font-decrease]')
+      ?.addEventListener('click', () => changeSize(-1), { signal });
+    controls
+      .querySelector('[data-reading-font-increase]')
+      ?.addEventListener('click', () => changeSize(1), { signal });
+    controls.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'Escape') controls.dataset.tooltipDismissed = '';
+      },
+      { signal },
+    );
+    controls.addEventListener(
+      'focusout',
+      () => delete controls.dataset.tooltipDismissed,
+      { signal },
+    );
+    controls.querySelectorAll('.reading-font-control').forEach((control) => {
+      control.addEventListener(
+        'pointerleave',
+        () => delete controls.dataset.tooltipDismissed,
+        { signal },
+      );
+    });
+
+    window.addEventListener(
+      'storage',
+      (event) => {
+        if (event.key === READING_FONT_STORAGE_KEY || event.key === null) {
+          updateReadingFont(readSavedPercent());
+        }
+      },
+      { signal },
+    );
+
+    controls.hidden = false;
+  };
+
+  document.addEventListener('astro:before-swap', cleanupReadingFontControls);
+  document.addEventListener('astro:after-swap', () => {
+    updateReadingFont(readSavedPercent());
+  });
+  document.addEventListener('astro:page-load', initializeReadingFontControls);
+</script>
