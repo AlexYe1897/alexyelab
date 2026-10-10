@@ -151,17 +151,18 @@
     font-family: var(--site-font-body);
     font-optical-sizing: auto;
     font-variation-settings: 'ROND' 6;
+    word-break: normal;
   }
 
   :where(h1, h2, h3, h4, h5, h6) {
     font-family: var(--site-font-display);
     font-optical-sizing: auto;
     font-variation-settings: 'ROND' 18;
-    text-wrap: balance;
+    text-wrap: wrap;
   }
 
   :where(p, li) {
-    text-wrap: pretty;
+    text-wrap: wrap;
   }
 
   :where(code, kbd, samp, pre) {
