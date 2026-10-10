@@ -1,13 +1,13 @@
 ---
-title: "本地大语言模型部署初探：基于 Ollama 与 Qwen3 的实践与分析"
-description: "记录 M5 Pro MacBook Pro 上的 Qwen3-8B 部署过程，分析量化、内存占用与推理速度，并通过 Ollama API 接入 DeepSeek Harness。"
-pubDate: "2026-10-10"
+title: '本地大语言模型部署初探：基于 Ollama 与 Qwen3 的实践与分析'
+description: '记录 M5 Pro MacBook Pro 上的 Qwen3-8B 部署过程，分析量化、内存占用与推理速度，并通过 Ollama API 接入 DeepSeek Harness。'
+pubDate: '2026-10-10'
 tags:
   - AI
   - 本地模型
   - Ollama
-category: "AI"
-draft: true
+category: 'AI'
+draft: false
 ---
 
 # 本地大语言模型部署初探：基于 Ollama 与 Qwen3 的实践与分析
