@@ -34,7 +34,13 @@ const visibleTags = isHome ? tags.slice(0, 3) : tags;
         : 'collection-card p-5 sm:p-6',
     ]}
   >
-    <h2 class:list={[isHome ? 'text-lg' : 'text-xl', 'weight-heading']}>
+    <h2
+      class:list={[
+        isHome ? 'text-lg' : 'text-xl',
+        'weight-heading',
+        'text-wrap',
+      ]}
+    >
       {title}
     </h2>
 
