@@ -16,6 +16,7 @@
 - 响应式布局与 `prefers-reduced-motion` 支持
 - 移动搜索平滑展开、菜单与小控件的非线性缓动，以及内页主要颜色的主题过渡
 - Google Sans Flex、Noto Sans SC 中文子集和 JetBrains Mono 字体组合
+- 自定义 AY 融合标志，统一用于导航、浏览器图标和默认社交分享图
 
 ### Blog
 
@@ -78,7 +79,8 @@
 │  └─ build-fonts.mjs            # 扫描源码并生成中文字体子集
 ├─ src/
 │  ├─ assets/
-│  │  └─ font-source/            # 中文字体源文件
+│  │  ├─ font-source/            # 中文字体源文件
+│  │  └─ logo.svg                # AY 标志的正式矢量源稿
 │  ├─ components/                # 导航、卡片、搜索、TOC 等组件
 │  ├─ content/
 │  │  ├─ blog/                   # Blog Markdown 内容

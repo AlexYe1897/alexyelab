@@ -54,7 +54,9 @@ AlexYeLab 是 Alex Ye 的个人技术网站，主要用于：
 
 ```text
 src/
-├─ assets/font-source/       # 中文可变字体源文件，供构建子集
+├─ assets/
+│  ├─ font-source/           # 中文可变字体源文件，供构建子集
+│  └─ logo.svg               # AY 融合标志的正式矢量源稿
 ├─ components/               # 导航、首页、卡片、TOC、搜索、代码块增强等
 ├─ content/
 │  ├─ blog/                  # Markdown 博客
@@ -68,6 +70,7 @@ src/
 public/
 ├─ fonts/                    # 拉丁字体、代码字体及许可文件
 ├─ images/home-earth.webp    # 首页地球视觉素材
+├─ favicon.svg / favicon.ico # AY 浏览器图标；SVG 支持深浅配色偏好
 └─ og-default.png            # 默认社交分享图
 
 scripts/build-fonts.mjs      # 扫描 src 中文字符并生成字体子集
@@ -146,6 +149,7 @@ AGENTS.md / CLAUDE.md        # 本地开发及 Astro 文档约定
 
 - 总体语言：极简但不空洞、柔和现代、轻科技感、适量图标、自然过渡。
 - 主强调色为深绿/蓝绿，暗色中使用较亮的薄荷绿。
+- 已选用 AY 几何融合标志，导航以 SVG 内联呈现，默认分享图使用同一造型；更换标志时需同步浏览器图标和分享图。设计过程稿保留在 `design/brand/`，不作为网站正式路由。
 - 字体组合为 Google Sans Flex、构建生成的 Noto Sans SC 中文子集和 JetBrains Mono。
 - 首页固定暗色，其他页面支持亮/暗主题，选择保存在 `alexyelab-theme`。
 - 首页使用深色太空视觉、确定性分布星点和地球素材；减少动态效果开启时停止动画。

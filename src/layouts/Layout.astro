@@ -33,8 +33,8 @@ const {
   title,
   description = 'Alex Ye 的个人技术网站，记录人工智能、大语言模型、软件工程与计算机系统相关的项目和文章。',
   ogType = 'website',
-  ogImage = '/og-default.png',
-  ogImageAlt = 'Alex Ye Lab 个人技术博客',
+  ogImage = '/og-default.png?v=ay-1',
+  ogImageAlt = 'Alex Ye Lab — AY 标志与个人技术博客',
   schemaType,
   schemaKeywords,
   robots,
@@ -224,7 +224,13 @@ const structuredDataJSON = JSON.stringify(structuredData).replace(
       crossorigin
     />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="/favicon.ico?v=ay-1"
+      sizes="16x16 32x32 48x48"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=ay-1" />
 
     <meta name="generator" content={Astro.generator} />
     <ClientRouter />

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alex Ye Lab · Social Card</title>
+    <style>
+      @font-face {
+        font-family: 'AlexYe Sans';
+        src: url('../../public/fonts/google-sans-flex-latin.woff2')
+          format('woff2');
+        font-weight: 350 750;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+      }
+      body {
+        background: #111a16;
+        color: #edf4f0;
+        font-family: 'AlexYe Sans', sans-serif;
+        font-optical-sizing: auto;
+        font-variation-settings: 'ROND' 18;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        padding: 76px 88px;
+      }
+      .eyebrow {
+        margin: 0;
+        color: #a0b8ab;
+        font-size: 15px;
+        font-weight: 550;
+        letter-spacing: 0.18em;
+      }
+      .copy {
+        position: absolute;
+        top: 228px;
+        left: 88px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 78px;
+        font-weight: 650;
+        line-height: 1.05;
+        letter-spacing: -0.045em;
+      }
+      .topics {
+        margin: 25px 0 0;
+        color: #a0b8ab;
+        font-size: 25px;
+        font-weight: 450;
+      }
+      .mark {
+        position: absolute;
+        width: 232px;
+        height: 232px;
+        right: 88px;
+        top: 194px;
+        background: #78dcb2;
+        -webkit-mask: url('../../src/assets/logo.svg') center / contain
+          no-repeat;
+        mask: url('../../src/assets/logo.svg') center / contain no-repeat;
+      }
+      footer {
+        position: absolute;
+        left: 88px;
+        right: 88px;
+        bottom: 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #2b3c32;
+        padding-top: 25px;
+        font-size: 20px;
+      }
+      .domain {
+        color: #78dcb2;
+        font-weight: 550;
+      }
+      .label {
+        color: #8b9f93;
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">PERSONAL TECH BLOG</p>
+      <div class="copy">
+        <h1>Alex Ye Lab</h1>
+        <p class="topics">AI · LLM · Systems · Engineering</p>
+      </div>
+      <div class="mark" role="img" aria-label="AY monogram"></div>
+      <footer>
+        <span class="domain">alexyelab.com</span
+        ><span class="label">Notes &amp; Projects</span>
+      </footer>
+    </main>
+  </body>
+</html>
