@@ -10,7 +10,7 @@ tags:
   - GPU
   - Request Scheduling
 category: 'AI'
-draft: true
+draft: false
 ---
 
 # 从 Transformer 计算到推理服务优化：Taming the Titans 第 2—3 节阅读笔记
