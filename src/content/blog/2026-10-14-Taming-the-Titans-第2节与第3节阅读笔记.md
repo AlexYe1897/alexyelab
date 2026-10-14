@@ -1,7 +1,7 @@
 ---
 title: '从 Transformer 计算到推理服务优化：Taming the Titans 第 2—3 节阅读笔记'
 description: '本文细读《Taming the Titans》综述的第 2—3 节，从 Transformer、Prefill／Decode 和 KV Cache 的基本机制，逐步梳理大模型推理服务中的请求调度、缓存管理与资源分配。结合操作系统中的调度、分页和缓存思想，分析这些优化的收益、开销与适用条件。'
-pubDate: 2026-10-14
+pubDate: '2026-10-14'
 tags:
   - AI Systems
   - LLM Inference

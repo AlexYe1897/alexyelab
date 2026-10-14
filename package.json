@@ -10,17 +10,21 @@
   "scripts": {
     "dev": "npm run fonts:build && astro dev",
     "check": "astro check",
+    "test:math": "node --test tests/markdown-math.test.mjs",
     "build": "npm run fonts:build && astro check && astro build",
     "fonts:build": "node scripts/build-fonts.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/markdown-satteri": "^0.3.5",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.0",
+    "katex": "^0.19.0",
+    "satteri": "^0.9.5",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {

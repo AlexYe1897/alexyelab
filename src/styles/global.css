@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'katex/dist/katex.min.css' layer(base);
 @plugin "@tailwindcss/typography";
 
 @font-face {
@@ -220,6 +221,34 @@
 
   .article-prose.prose :where(h2, h3, h4) {
     scroll-margin-top: 2rem;
+  }
+
+  .article-prose.prose .katex {
+    color: var(--site-ink);
+    font-size: 1.05em;
+  }
+
+  .article-prose.prose .math-block {
+    max-width: 100%;
+    margin-block: 1.35em;
+    padding: 0.6em 0.2em;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--site-line-strong) transparent;
+  }
+
+  .article-prose.prose .math-block:focus-visible {
+    outline: 2px solid var(--site-focus);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  .article-prose.prose .math-block .katex-display {
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
   }
 
   .article-prose.prose :where(a) {
